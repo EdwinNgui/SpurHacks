@@ -47,14 +47,14 @@ export default function QuantumCircuitAssistantPage() {
 
   // Available quantum gates
   const gates: GateTemplate[] = [
-    { type: 'H', name: 'Hadamard', symbol: 'H', color: 'bg-blue-500', description: 'Creates superposition' },
-    { type: 'X', name: 'Pauli-X', symbol: 'X', color: 'bg-red-500', description: 'Bit flip (NOT gate)' },
-    { type: 'Y', name: 'Pauli-Y', symbol: 'Y', color: 'bg-yellow-500', description: 'Y rotation' },
-    { type: 'Z', name: 'Pauli-Z', symbol: 'Z', color: 'bg-green-500', description: 'Phase flip' },
+    { type: 'H', name: 'Hadamard', symbol: 'H', color: 'bg-purple-500', description: 'Creates superposition' },
+    { type: 'X', name: 'Pauli-X', symbol: 'X', color: 'bg-purple-700', description: 'Bit flip (NOT gate)' },
+    { type: 'Y', name: 'Pauli-Y', symbol: 'Y', color: 'bg-purple-500', description: 'Y rotation' },
+    { type: 'Z', name: 'Pauli-Z', symbol: 'Z', color: 'bg-purple-700', description: 'Phase flip' },
     { type: 'CNOT', name: 'CNOT', symbol: '⊕', color: 'bg-purple-500', description: 'Controlled NOT' },
-    { type: 'RX', name: 'RX', symbol: 'RX', color: 'bg-indigo-500', description: 'X rotation' },
-    { type: 'RY', name: 'RY', symbol: 'RY', color: 'bg-pink-500', description: 'Y rotation' },
-    { type: 'MEASURE', name: 'Measure', symbol: '📊', color: 'bg-orange-500', description: 'Measure qubit' }
+    { type: 'RX', name: 'RX', symbol: 'RX', color: 'bg-purple-700', description: 'X rotation' },
+    { type: 'RY', name: 'RY', symbol: 'RY', color: 'bg-purple-500', description: 'Y rotation' },
+    { type: 'MEASURE', name: 'Measure', symbol: '📊', color: 'bg-purple-700', description: 'Measure qubit' }
   ];
 
   // Quantum algorithm templates
@@ -300,36 +300,36 @@ export default function QuantumCircuitAssistantPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-[#221e29] text-gray-300 p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-2 text-blue-600">
+        <h1 className="text-4xl font-bold text-center mb-2 text-white">
           Quantum Circuit AI Assistant
         </h1>
-        <p className="text-center text-gray-600 mb-8">
+        <p className="text-center text-gray-300 mb-8">
           Build quantum circuits with AI assistance or manual control
         </p>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Left Column - Manual Builder and AI Sections */}
           <div className="lg:col-span-1 space-y-6">
             {/* Section Toggle */}
-            <div className="bg-white rounded-lg p-2 shadow-lg">
+            <div className="bg-[#3f2a61]/30 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg p-2">
               <div className="flex">
                 <button
                   onClick={() => setActiveSection('manual')}
-                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                     activeSection === 'manual' 
-                      ? 'bg-blue-500 text-white' 
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-white/20 text-white' 
+                      : 'text-gray-300 hover:bg-white/10'
                   }`}
                 >
                   🔧 Manual
                 </button>
                 <button
                   onClick={() => setActiveSection('ai')}
-                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                     activeSection === 'ai' 
-                      ? 'bg-blue-500 text-white' 
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-white/20 text-white' 
+                      : 'text-gray-300 hover:bg-white/10'
                   }`}
                 >
                   🤖 AI Assistant
@@ -338,15 +338,15 @@ export default function QuantumCircuitAssistantPage() {
             </div>
             {/* Manual Builder Section */}
             {activeSection === 'manual' && (
-              <div className="bg-white rounded-lg p-6 shadow-lg">
-                <h3 className="text-xl font-semibold mb-4">Quantum Gates</h3>
+              <div className="bg-[#3f2a61]/30 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg p-6">
+                <h3 className="text-xl font-semibold mb-4 text-white">Quantum Gates</h3>
                 <div className="space-y-3">
                   {gates.map((gate) => (
                     <div
                       key={gate.type}
                       draggable
                       onDragStart={() => handleDragStart(gate)}
-                      className={`${gate.color} text-white p-3 rounded cursor-move hover:opacity-80 transition-opacity`}
+                      className="bg-white/10 text-white p-3 rounded-lg cursor-move hover:bg-white/20 transition-colors backdrop-blur-md border border-white/20"
                     >
                       <div className="font-bold">{gate.symbol} - {gate.name}</div>
                       <div className="text-sm opacity-90">{gate.description}</div>
@@ -357,8 +357,8 @@ export default function QuantumCircuitAssistantPage() {
             )}
             {/* AI Assistant Section */}
             {activeSection === 'ai' && (
-              <div className="bg-white rounded-lg p-6 shadow-lg">
-                <h3 className="text-xl font-semibold mb-4 text-purple-600">
+              <div className="bg-[#3f2a61]/30 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg p-6">
+                <h3 className="text-xl font-semibold mb-4 text-white">
                   What would you like to do?
                 </h3>
                 <div className="mb-4">
@@ -369,26 +369,26 @@ export default function QuantumCircuitAssistantPage() {
                       onChange={(e) => setUserQuery(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleQuerySubmit(e)}
                       placeholder="e.g., 'Create a quantum coin flip'"
-                      className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      className="flex-1 p-3 bg-black/20 border border-white/20 rounded-lg focus:ring-2 focus:ring-[#652db4] focus:border-transparent text-sm text-white placeholder-gray-400"
                       disabled={isProcessing}
                     />
                     <button
                       onClick={handleQuerySubmit}
                       disabled={isProcessing || !userQuery.trim()}
-                      className="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                      className="bg-[#652db4] text-white px-4 py-3 rounded-lg hover:bg-[#8145c2] disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-colors"
                     >
                       {isProcessing ? '🤔' : '✨'}
                     </button>
                   </div>
                 </div>
                 <div className="mb-4">
-                  <p className="text-sm text-gray-600 mb-2">Try these examples:</p>
+                  <p className="text-sm text-gray-300 mb-2">Try these examples:</p>
                   <div className="flex flex-wrap gap-2">
                     {exampleQueries.map((example, index) => (
                       <button
                         key={index}
                         onClick={() => setUserQuery(example)}
-                        className="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded-full text-gray-700 transition-colors"
+                        className="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded-full text-gray-300 transition-colors"
                       >
                         {example}
                       </button>
@@ -396,9 +396,9 @@ export default function QuantumCircuitAssistantPage() {
                   </div>
                 </div>
                 {aiResponse && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <h4 className="font-semibold text-blue-800 mb-2 text-sm">AI Response:</h4>
-                    <div className="text-blue-700 whitespace-pre-line text-sm">{aiResponse}</div>
+                  <div className="bg-black/20 border border-white/10 rounded-lg p-3">
+                    <h4 className="font-semibold text-white mb-2 text-sm">AI Response:</h4>
+                    <div className="text-gray-300 whitespace-pre-line text-sm">{aiResponse}</div>
                   </div>
                 )}
               </div>
@@ -407,16 +407,16 @@ export default function QuantumCircuitAssistantPage() {
           {/* Primary Section - Circuit Builder and Results */}
           <div className="lg:col-span-3 flex flex-col gap-6">
             {/* Circuit Builder - now runs horizontally across the screen */}
-            <div className="bg-white rounded-lg p-6 shadow-lg">
+            <div className="bg-[#3f2a61]/30 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">Quantum Circuit</h3>
-                <div className="flex gap-2">
-                  <label className="text-sm">
+                <h3 className="text-xl font-semibold text-white">Quantum Circuit</h3>
+                <div className="flex gap-2 items-center">
+                  <label className="text-sm text-gray-300">
                     Qubits:
                     <select 
                       value={numQubits} 
                       onChange={(e) => setNumQubits(Number(e.target.value))}
-                      className="ml-2 border rounded px-2 py-1"
+                      className="ml-2 bg-black/20 border border-white/20 rounded px-2 py-1 focus:ring-2 focus:ring-[#652db4]"
                     >
                       <option value={1}>1</option>
                       <option value={2}>2</option>
@@ -433,20 +433,20 @@ export default function QuantumCircuitAssistantPage() {
                 </div>
               </div>
               {/* Circuit Visualization - horizontal full width */}
-              <div className="bg-gray-50 p-4 rounded border-2 border-dashed border-gray-300 min-h-64 overflow-x-auto">
+              <div className="bg-black/20 p-4 rounded-lg border-2 border-dashed border-white/20 min-h-64 overflow-x-auto">
                 {Array.from({ length: numQubits }, (_, i) => (
                   <div key={i} className="mb-8 last:mb-0">
                     <div className="flex items-center">
-                      <span className="text-sm font-mono mr-4 w-12">|{i}⟩</span>
+                      <span className="text-sm font-mono mr-4 w-12 text-gray-300">|{i}⟩</span>
                       <div className="flex-1 relative" style={{ minWidth: '640px' }}>
-                        <div className="h-0.5 bg-gray-400 w-full absolute top-1/2"></div>
+                        <div className="h-0.5 bg-white/30 w-full absolute top-1/2"></div>
                         {Array.from({ length: 8 }, (_, pos) => (
                           <div
                             key={pos}
                             onDragOver={(e) => e.preventDefault()}
                             onDrop={() => handleDrop(i, pos)}
-                            className={`absolute w-12 h-12 border-2 border-transparent rounded ${
-                              activeSection === 'manual' ? 'hover:border-blue-300' : ''
+                            className={`absolute w-12 h-12 border-2 border-transparent rounded-full ${
+                              activeSection === 'manual' ? 'hover:border-white/50' : ''
                             }`}
                             style={{ left: `${pos * 80}px`, top: '-24px' }}
                           >
@@ -456,14 +456,14 @@ export default function QuantumCircuitAssistantPage() {
                                 <div
                                   key={gate.id}
                                   className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                                    gate.type === 'H' ? 'bg-blue-500' :
-                                    gate.type === 'X' ? 'bg-red-500' :
-                                    gate.type === 'Y' ? 'bg-yellow-500' :
-                                    gate.type === 'Z' ? 'bg-green-500' :
-                                    gate.type === 'CNOT' ? 'bg-purple-500' :
-                                    gate.type === 'RX' ? 'bg-indigo-500' :
-                                    gate.type === 'RY' ? 'bg-pink-500' :
-                                    'bg-orange-500'
+                                    gate.type === 'H' ? 'bg-[#652db4]' :
+                                    gate.type === 'X' ? 'bg-[#3f2a61]' :
+                                    gate.type === 'Y' ? 'bg-[#652db4]' :
+                                    gate.type === 'Z' ? 'bg-[#3f2a61]' :
+                                    gate.type === 'CNOT' ? 'bg-[#652db4]' :
+                                    gate.type === 'RX' ? 'bg-[#3f2a61]' :
+                                    gate.type === 'RY' ? 'bg-[#652db4]' :
+                                    'bg-[#3f2a61]'
                                   }`}
                                 >
                                   {gate.type === 'MEASURE' ? '📊' : gate.type}
@@ -478,7 +478,7 @@ export default function QuantumCircuitAssistantPage() {
               </div>
               <button 
                 onClick={simulateCircuit}
-                className="w-full mt-4 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold"
+                className="w-full mt-4 bg-[#652db4] text-white py-2 rounded-lg hover:bg-[#8145c2] font-semibold transition-colors"
               >
                 🚀 Run Quantum Circuit
               </button>
@@ -486,36 +486,36 @@ export default function QuantumCircuitAssistantPage() {
             {/* Results Row - Distribution (left) and Interpretation (right) */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               {/* Distribution Section */}
-              <div className="bg-white rounded-lg p-6 shadow-lg">
-                <h3 className="text-xl font-semibold mb-4">Measurement Probabilities</h3>
+              <div className="bg-[#3f2a61]/30 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg p-6">
+                <h3 className="text-xl font-semibold mb-4 text-white">Measurement Probabilities</h3>
                 {simulationResult ? (
                   <div className="space-y-3">
                     {Object.entries(simulationResult).map(([state, probability]) => (
                       <div key={state} className="flex justify-between items-center">
-                        <span className="font-mono">|{state}⟩</span>
+                        <span className="font-mono text-gray-300">|{state}⟩</span>
                         <div className="flex items-center">
-                          <div className="w-20 bg-gray-200 rounded-full h-2 mr-2">
+                          <div className="w-20 bg-white/20 rounded-full h-2 mr-2">
                             <div 
-                              className="bg-blue-600 h-2 rounded-full" 
+                              className="bg-[#652db4] h-2 rounded-full" 
                               style={{ width: `${probability * 100}%` }}
                             ></div>
                           </div>
-                          <span className="text-sm">{(probability * 100).toFixed(1)}%</span>
+                          <span className="text-sm text-gray-300">{(probability * 100).toFixed(1)}%</span>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 italic">Build and run a circuit to see results!</p>
+                  <p className="text-gray-400 italic">Build and run a circuit to see results!</p>
                 )}
               </div>
               {/* Interpretation Section */}
-              <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col">
-                <h3 className="text-xl font-semibold mb-4">Interpretation</h3>
+              <div className="bg-[#3f2a61]/30 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg p-6 flex flex-col">
+                <h3 className="text-xl font-semibold mb-4 text-white">Interpretation</h3>
                 {simulationResult ? (
-                  <div className="mt-2 p-2 bg-blue-50 rounded flex-1">
-                    <h4 className="font-semibold text-blue-800 mb-2">Result Analysis:</h4>
-                    <p className="text-sm text-blue-700">
+                  <div className="mt-2 p-3 bg-black/20 rounded-lg flex-1 border border-white/10">
+                    <h4 className="font-semibold text-white mb-2">Result Analysis:</h4>
+                    <p className="text-sm text-gray-300">
                       Each |state⟩ represents a possible measurement outcome.<br />
                       The percentages show the probability of measuring each state.<br />
                       {Object.keys(simulationResult).length > 1 ? (
@@ -526,7 +526,7 @@ export default function QuantumCircuitAssistantPage() {
                     </p>
                   </div>
                 ) : (
-                  <p className="text-gray-500 italic flex-1">Interpretation will appear here after running a circuit.</p>
+                  <p className="text-gray-400 italic flex-1">Interpretation will appear here after running a circuit.</p>
                 )}
               </div>
             </div>
