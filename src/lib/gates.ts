@@ -24,6 +24,17 @@ export const xGate: Complex[][] = [
   ],
 ];
 
+export const yGate: Complex[][] = [
+  [
+    [0, 0],
+    [0, -1],
+  ],
+  [
+    [0, 1],
+    [0, 0],
+  ],
+];
+
 export const zGate: Complex[][] = [
   [
     [1, 0],

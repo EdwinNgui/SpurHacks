@@ -1,6 +1,6 @@
 import { Complex, Circuit } from "@/lib/types";
 import { applySingleQubitGate, applyTwoQubitGate } from "@/lib/operations";
-import { hGate, xGate, zGate, rxGate, ryGate, cnotGate } from "@/lib/gates";
+import { hGate, xGate, yGate, zGate, rxGate, ryGate, rzGate, cnotGate } from "@/lib/gates";
 
 export function initialState(numQubits: number): Complex[] {
   const size = 2 ** numQubits;
@@ -26,6 +26,14 @@ export function runCircuit(circuit: Circuit, numQubits: number): Complex[] {
           state = applySingleQubitGate(
             state,
             xGate,
+            gate.targets[0],
+            numQubits
+          );
+          break;
+        case "Y":
+          state = applySingleQubitGate(
+            state,
+            yGate,
             gate.targets[0],
             numQubits
           );
@@ -57,7 +65,7 @@ export function runCircuit(circuit: Circuit, numQubits: number): Complex[] {
         case "RZ":
           state = applySingleQubitGate(
             state,
-            ryGate(gate.params!),
+            rzGate(gate.params!),
             gate.targets[0],
             numQubits
           );

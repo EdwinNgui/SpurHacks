@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
+import { runCircuit } from '@/lib/simulation';
+import { Circuit, Gate } from '@/lib/types';
 
 // Type definitions
 interface QuantumGate {
@@ -175,103 +177,61 @@ export default function QuantumCircuitAssistantPage() {
   ];
 
   const simulateCircuit = () => {
-    if (circuit.length === 0) {
-      setSimulationResult(null);
-      return;
+    // 1. Filter out MEASURE gates and transform the circuit for the backend.
+    const maxPosition = circuit.reduce((max, gate) => Math.max(max, gate.position), 0);
+    const steps: Gate[][] = Array.from({ length: maxPosition + 1 }, () => []);
+
+    const frontendCircuit = circuit.filter(gate => gate.type !== 'MEASURE');
+
+    for (const gate of frontendCircuit) {
+        const backendGate: Gate = {
+            type: gate.type as Gate['type'],
+            targets: [],
+        };
+
+        if (gate.type === 'CNOT') {
+            if (gate.control !== undefined && gate.target !== undefined) {
+                backendGate.targets = [gate.control, gate.target];
+            }
+        } else {
+            if (gate.qubit !== undefined) {
+                backendGate.targets = [gate.qubit];
+            }
+        }
+        
+        // This is a hack for RX and RY gates for now.
+        if (gate.type === 'RX' || gate.type === 'RY') {
+          backendGate.params = Math.PI / 2;
+        }
+
+        if (backendGate.targets.length > 0) {
+            steps[gate.position].push(backendGate);
+        }
     }
-    let state: QuantumState = {};
-    for (let i = 0; i < Math.pow(2, numQubits); i++) {
-      state[i.toString(2).padStart(numQubits, '0')] = i === 0 ? 1 : 0;
+
+    const backendCircuit: Circuit = { gates: steps };
+
+    if (backendCircuit.gates.every(step => step.length === 0)) {
+        setSimulationResult(null);
+        return;
     }
-    circuit.forEach(gate => {
-      if (gate.type === 'H' && gate.qubit !== undefined) {
-        state = applyHadamard(state, gate.qubit, numQubits);
-      } else if (gate.type === 'X' && gate.qubit !== undefined) {
-        state = applyX(state, gate.qubit, numQubits);
-      } else if (gate.type === 'Y' && gate.qubit !== undefined) {
-        state = applyY(state, gate.qubit, numQubits);
-      } else if (gate.type === 'Z' && gate.qubit !== undefined) {
-        state = applyZ(state, gate.qubit, numQubits);
-      } else if (gate.type === 'CNOT' && gate.control !== undefined && gate.target !== undefined) {
-        state = applyCNOT(state, gate.control, gate.target, numQubits);
-      }
-    });
+
+    // 2. Run the simulation using the backend.
+    const finalStateVector = runCircuit(backendCircuit, numQubits);
+
+    // 3. Process the results.
     const probabilities: SimulationResult = {};
-    Object.keys(state).forEach(stateKey => {
-      const probability = Math.pow(Math.abs(state[stateKey]), 2);
-      if (probability > 0.001) {
-        probabilities[stateKey] = probability;
-      }
+    finalStateVector.forEach((amplitude, index) => {
+        const probability = amplitude[0] * amplitude[0] + amplitude[1] * amplitude[1]; // prob = |a+bi|^2 = a^2+b^2
+        if (probability > 0.001) {
+            const stateKey = index.toString(2).padStart(numQubits, '0');
+            probabilities[stateKey] = probability;
+        }
     });
+
     setSimulationResult(probabilities);
   };
 
-  const applyHadamard = (state: QuantumState, qubit: number, numQubits: number): QuantumState => {
-    const newState: QuantumState = {};
-    Object.keys(state).forEach(stateKey => {
-      const amplitude = state[stateKey];
-      if (amplitude === 0) return;
-      const bitArray = stateKey.split('').map(Number);
-      const newBitArray0 = [...bitArray];
-      const newBitArray1 = [...bitArray];
-      newBitArray0[qubit] = 0;
-      newBitArray1[qubit] = 1;
-      const newState0 = newBitArray0.join('');
-      const newState1 = newBitArray1.join('');
-      const factor = amplitude / Math.sqrt(2);
-      newState[newState0] = (newState[newState0] || 0) + factor;
-      newState[newState1] = (newState[newState1] || 0) + factor;
-    });
-    return newState;
-  };
-  const applyX = (state: QuantumState, qubit: number, numQubits: number): QuantumState => {
-    const newState: QuantumState = {};
-    Object.keys(state).forEach(stateKey => {
-      const amplitude = state[stateKey];
-      if (amplitude === 0) return;
-      const bitArray = stateKey.split('').map(Number);
-      bitArray[qubit] = 1 - bitArray[qubit];
-      const newStateKey = bitArray.join('');
-      newState[newStateKey] = amplitude;
-    });
-    return newState;
-  };
-  const applyY = (state: QuantumState, qubit: number, numQubits: number): QuantumState => {
-    const newState: QuantumState = {};
-    Object.keys(state).forEach(stateKey => {
-      const amplitude = state[stateKey];
-      if (amplitude === 0) return;
-      const bitArray = stateKey.split('').map(Number);
-      bitArray[qubit] = 1 - bitArray[qubit];
-      const newStateKey = bitArray.join('');
-      newState[newStateKey] = amplitude;
-    });
-    return newState;
-  };
-  const applyZ = (state: QuantumState, qubit: number, numQubits: number): QuantumState => {
-    const newState: QuantumState = {};
-    Object.keys(state).forEach(stateKey => {
-      const amplitude = state[stateKey];
-      if (amplitude === 0) return;
-      const bitArray = stateKey.split('').map(Number);
-      newState[stateKey] = bitArray[qubit] === 1 ? -amplitude : amplitude;
-    });
-    return newState;
-  };
-  const applyCNOT = (state: QuantumState, control: number, target: number, numQubits: number): QuantumState => {
-    const newState: QuantumState = {};
-    Object.keys(state).forEach(stateKey => {
-      const amplitude = state[stateKey];
-      if (amplitude === 0) return;
-      const bitArray = stateKey.split('').map(Number);
-      if (bitArray[control] === 1) {
-        bitArray[target] = 1 - bitArray[target];
-      }
-      const newStateKey = bitArray.join('');
-      newState[newStateKey] = amplitude;
-    });
-    return newState;
-  };
   const handleDragStart = (gate: GateTemplate) => {
     setDraggedGate(gate);
   };
