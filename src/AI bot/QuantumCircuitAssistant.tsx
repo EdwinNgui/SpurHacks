@@ -1,17 +1,52 @@
+"use client";
+
 import React, { useState, useRef } from 'react';
 
+// Type definitions
+interface QuantumGate {
+  id: number;
+  type: string;
+  qubit?: number;
+  control?: number;
+  target?: number;
+  position: number;
+}
+
+interface GateTemplate {
+  type: string;
+  name: string;
+  symbol: string;
+  color: string;
+  description: string;
+}
+
+interface AlgorithmTemplate {
+  name: string;
+  description: string;
+  circuit: QuantumGate[];
+  qubits: number;
+}
+
+interface QuantumState {
+  [key: string]: number;
+}
+
+interface SimulationResult {
+  [key: string]: number;
+}
+
 const QuantumCircuitAssistant = () => {
-  const [numQubits, setNumQubits] = useState(2);
-  const [circuit, setCircuit] = useState([]);
-  const [draggedGate, setDraggedGate] = useState(null);
-  const [simulationResult, setSimulationResult] = useState(null);
-  const [userQuery, setUserQuery] = useState('');
-  const [aiResponse, setAiResponse] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [mode, setMode] = useState('assistant'); // 'assistant' or 'manual'
+  const [numQubits, setNumQubits] = useState<number>(2);
+  const [circuit, setCircuit] = useState<QuantumGate[]>([]);
+  const [draggedGate, setDraggedGate] = useState<GateTemplate | null>(null);
+  const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
+  const [userQuery, setUserQuery] = useState<string>('');
+  const [aiResponse, setAiResponse] = useState<string>('');
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [mode, setMode] = useState<'assistant' | 'manual'>('assistant');
 
   // Available quantum gates
-  const gates = [
+  const gates: GateTemplate[] = [
     { type: 'H', name: 'Hadamard', symbol: 'H', color: 'bg-blue-500', description: 'Creates superposition' },
     { type: 'X', name: 'Pauli-X', symbol: 'X', color: 'bg-red-500', description: 'Bit flip (NOT gate)' },
     { type: 'Y', name: 'Pauli-Y', symbol: 'Y', color: 'bg-yellow-500', description: 'Y rotation' },
@@ -23,15 +58,15 @@ const QuantumCircuitAssistant = () => {
   ];
 
   // Quantum algorithm templates
-  const quantumAlgorithms = {
+  const quantumAlgorithms: { [key: string]: AlgorithmTemplate } = {
     'bell_state': {
       name: 'Bell State (Entanglement)',
       description: 'Creates maximum entanglement between two qubits',
       circuit: [
-        { type: 'H', qubit: 0, position: 0 },
-        { type: 'CNOT', control: 0, target: 1, position: 1 },
-        { type: 'MEASURE', qubit: 0, position: 2 },
-        { type: 'MEASURE', qubit: 1, position: 2 }
+        { id: 1, type: 'H', qubit: 0, position: 0 },
+        { id: 2, type: 'CNOT', control: 0, target: 1, position: 1 },
+        { id: 3, type: 'MEASURE', qubit: 0, position: 2 },
+        { id: 4, type: 'MEASURE', qubit: 1, position: 2 }
       ],
       qubits: 2
     },
@@ -39,8 +74,8 @@ const QuantumCircuitAssistant = () => {
       name: 'Quantum Superposition',
       description: 'Puts a qubit in equal superposition of |0⟩ and |1⟩',
       circuit: [
-        { type: 'H', qubit: 0, position: 0 },
-        { type: 'MEASURE', qubit: 0, position: 1 }
+        { id: 1, type: 'H', qubit: 0, position: 0 },
+        { id: 2, type: 'MEASURE', qubit: 0, position: 1 }
       ],
       qubits: 1
     },
@@ -48,8 +83,8 @@ const QuantumCircuitAssistant = () => {
       name: 'Quantum Coin Flip',
       description: 'True random coin flip using quantum superposition',
       circuit: [
-        { type: 'H', qubit: 0, position: 0 },
-        { type: 'MEASURE', qubit: 0, position: 1 }
+        { id: 1, type: 'H', qubit: 0, position: 0 },
+        { id: 2, type: 'MEASURE', qubit: 0, position: 1 }
       ],
       qubits: 1
     },
@@ -57,14 +92,14 @@ const QuantumCircuitAssistant = () => {
       name: 'Grover Search (2-bit)',
       description: 'Simple Grover search for 2 qubits',
       circuit: [
-        { type: 'H', qubit: 0, position: 0 },
-        { type: 'H', qubit: 1, position: 0 },
-        { type: 'Z', qubit: 0, position: 1 },
-        { type: 'Z', qubit: 1, position: 1 },
-        { type: 'H', qubit: 0, position: 2 },
-        { type: 'H', qubit: 1, position: 2 },
-        { type: 'MEASURE', qubit: 0, position: 3 },
-        { type: 'MEASURE', qubit: 1, position: 3 }
+        { id: 1, type: 'H', qubit: 0, position: 0 },
+        { id: 2, type: 'H', qubit: 1, position: 0 },
+        { id: 3, type: 'Z', qubit: 0, position: 1 },
+        { id: 4, type: 'Z', qubit: 1, position: 1 },
+        { id: 5, type: 'H', qubit: 0, position: 2 },
+        { id: 6, type: 'H', qubit: 1, position: 2 },
+        { id: 7, type: 'MEASURE', qubit: 0, position: 3 },
+        { id: 8, type: 'MEASURE', qubit: 1, position: 3 }
       ],
       qubits: 2
     },
@@ -72,24 +107,24 @@ const QuantumCircuitAssistant = () => {
       name: 'Quantum Interference',
       description: 'Demonstrates wave-like interference in quantum systems',
       circuit: [
-        { type: 'H', qubit: 0, position: 0 },
-        { type: 'Z', qubit: 0, position: 1 },
-        { type: 'H', qubit: 0, position: 2 },
-        { type: 'MEASURE', qubit: 0, position: 3 }
+        { id: 1, type: 'H', qubit: 0, position: 0 },
+        { id: 2, type: 'Z', qubit: 0, position: 1 },
+        { id: 3, type: 'H', qubit: 0, position: 2 },
+        { id: 4, type: 'MEASURE', qubit: 0, position: 3 }
       ],
       qubits: 1
     }
   };
 
   // LLM-like processing for user queries
-  const processUserQuery = async (query) => {
+  const processUserQuery = async (query: string) => {
     setIsProcessing(true);
     
     // Simulate processing delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     const lowerQuery = query.toLowerCase();
-    let selectedAlgorithm = null;
+    let selectedAlgorithm: AlgorithmTemplate | null = null;
     let explanation = '';
     
     // Intent recognition based on keywords
@@ -133,7 +168,7 @@ const QuantumCircuitAssistant = () => {
   };
 
   // Handle user query submission
-  const handleQuerySubmit = (e) => {
+  const handleQuerySubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (userQuery.trim()) {
       processUserQuery(userQuery);
@@ -157,28 +192,28 @@ const QuantumCircuitAssistant = () => {
     }
 
     // Initialize quantum state (all qubits start as |0⟩)
-    let state = {};
+    let state: QuantumState = {};
     for (let i = 0; i < Math.pow(2, numQubits); i++) {
       state[i.toString(2).padStart(numQubits, '0')] = i === 0 ? 1 : 0;
     }
 
     // Process gates in order
     circuit.forEach(gate => {
-      if (gate.type === 'H') {
+      if (gate.type === 'H' && gate.qubit !== undefined) {
         state = applyHadamard(state, gate.qubit, numQubits);
-      } else if (gate.type === 'X') {
+      } else if (gate.type === 'X' && gate.qubit !== undefined) {
         state = applyX(state, gate.qubit, numQubits);
-      } else if (gate.type === 'Y') {
+      } else if (gate.type === 'Y' && gate.qubit !== undefined) {
         state = applyY(state, gate.qubit, numQubits);
-      } else if (gate.type === 'Z') {
+      } else if (gate.type === 'Z' && gate.qubit !== undefined) {
         state = applyZ(state, gate.qubit, numQubits);
-      } else if (gate.type === 'CNOT') {
+      } else if (gate.type === 'CNOT' && gate.control !== undefined && gate.target !== undefined) {
         state = applyCNOT(state, gate.control, gate.target, numQubits);
       }
     });
 
     // Calculate measurement probabilities
-    const probabilities = {};
+    const probabilities: SimulationResult = {};
     Object.keys(state).forEach(stateKey => {
       const probability = Math.pow(Math.abs(state[stateKey]), 2);
       if (probability > 0.001) {
@@ -190,8 +225,8 @@ const QuantumCircuitAssistant = () => {
   };
 
   // Quantum gate operations
-  const applyHadamard = (state, qubit, numQubits) => {
-    const newState = {};
+  const applyHadamard = (state: QuantumState, qubit: number, numQubits: number): QuantumState => {
+    const newState: QuantumState = {};
     Object.keys(state).forEach(stateKey => {
       const amplitude = state[stateKey];
       if (amplitude === 0) return;
@@ -213,8 +248,8 @@ const QuantumCircuitAssistant = () => {
     return newState;
   };
 
-  const applyX = (state, qubit, numQubits) => {
-    const newState = {};
+  const applyX = (state: QuantumState, qubit: number, numQubits: number): QuantumState => {
+    const newState: QuantumState = {};
     Object.keys(state).forEach(stateKey => {
       const amplitude = state[stateKey];
       if (amplitude === 0) return;
@@ -227,8 +262,8 @@ const QuantumCircuitAssistant = () => {
     return newState;
   };
 
-  const applyY = (state, qubit, numQubits) => {
-    const newState = {};
+  const applyY = (state: QuantumState, qubit: number, numQubits: number): QuantumState => {
+    const newState: QuantumState = {};
     Object.keys(state).forEach(stateKey => {
       const amplitude = state[stateKey];
       if (amplitude === 0) return;
@@ -242,8 +277,8 @@ const QuantumCircuitAssistant = () => {
     return newState;
   };
 
-  const applyZ = (state, qubit, numQubits) => {
-    const newState = {};
+  const applyZ = (state: QuantumState, qubit: number, numQubits: number): QuantumState => {
+    const newState: QuantumState = {};
     Object.keys(state).forEach(stateKey => {
       const amplitude = state[stateKey];
       if (amplitude === 0) return;
@@ -255,8 +290,8 @@ const QuantumCircuitAssistant = () => {
     return newState;
   };
 
-  const applyCNOT = (state, control, target, numQubits) => {
-    const newState = {};
+  const applyCNOT = (state: QuantumState, control: number, target: number, numQubits: number): QuantumState => {
+    const newState: QuantumState = {};
     Object.keys(state).forEach(stateKey => {
       const amplitude = state[stateKey];
       if (amplitude === 0) return;
@@ -272,14 +307,14 @@ const QuantumCircuitAssistant = () => {
   };
 
   // Manual mode functions
-  const handleDragStart = (gate) => {
+  const handleDragStart = (gate: GateTemplate) => {
     setDraggedGate(gate);
   };
 
-  const handleDrop = (qubit, position) => {
+  const handleDrop = (qubit: number, position: number) => {
     if (!draggedGate) return;
 
-    const newGate = {
+    const newGate: QuantumGate = {
       id: Date.now(),
       type: draggedGate.type,
       qubit: qubit,
