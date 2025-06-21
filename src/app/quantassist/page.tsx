@@ -9,6 +9,21 @@ import ControlPanel from './components/ControlPanel';
 import CircuitBuilder from './components/CircuitBuilder';
 import ResultsPanel from './components/ResultsPanel';
 
+const pageConfig = {
+    manual: {
+        title: "Quantum Circuit Sandbox",
+        description: "Manually build and simulate your own quantum circuits by dragging gates."
+    },
+    ai: {
+        title: "AI Circuit Builder",
+        description: "Describe the circuit you want, and let the AI build it for you."
+    },
+    algorithms: {
+        title: "Grover's Playground",
+        description: "Explore the quantum search algorithm in an interactive sandbox."
+    }
+};
+
 export default function QuantumCircuitAssistantPage() {
   const [numQubits, setNumQubits] = useState<number>(2);
   const [circuit, setCircuit] = useState<QuantumGate[]>([]);
@@ -20,6 +35,8 @@ export default function QuantumCircuitAssistantPage() {
   const [aiResponse, setAiResponse] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<'manual' | 'ai' | 'algorithms'>('manual');
+
+  const currentPage = pageConfig[activeSection];
 
   // Available quantum gates
   const gates: GateTemplate[] = [
@@ -313,10 +330,10 @@ export default function QuantumCircuitAssistantPage() {
       <div className="relative z-10 p-6 text-gray-300">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold text-center mb-2 text-white">
-            Quantum Circuit AI Assistant
+            {currentPage.title}
           </h1>
           <p className="text-center text-gray-300 mb-8">
-            Build quantum circuits with AI assistance or manual control
+            {currentPage.description}
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <ControlPanel
