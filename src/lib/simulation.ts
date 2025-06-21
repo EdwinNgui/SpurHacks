@@ -1,6 +1,6 @@
 import { Complex, Circuit } from "@/lib/types";
-import { applySingleQubitGate, applyTwoQubitGate } from "./operations";
-import { hGate, xGate, zGate, rxGate, ryGate, cnotGate } from "./gates";
+import { applySingleQubitGate, applyTwoQubitGate } from "@/lib/operations";
+import { hGate, xGate, zGate, rxGate, ryGate, cnotGate } from "@/lib/gates";
 
 export function initialState(numQubits: number): Complex[] {
   const size = 2 ** numQubits;
@@ -9,7 +9,7 @@ export function initialState(numQubits: number): Complex[] {
   return state;
 }
 
-function runCircuit(circuit: Circuit, numQubits: number): Complex[] {
+export function runCircuit(circuit: Circuit, numQubits: number): Complex[] {
   let state = initialState(numQubits);
   for (const step of circuit.gates) {
     for (const gate of step) {
