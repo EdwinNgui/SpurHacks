@@ -1,11 +1,12 @@
 import React from 'react';
 import GatePalette from './GatePalette';
 import AiAssistant from './AiAssistant';
+import GroverSearch from './GroverSearch';
 import { GateTemplate } from '../types';
 
 interface ControlPanelProps {
-    activeSection: 'manual' | 'ai';
-    setActiveSection: (section: 'manual' | 'ai') => void;
+    activeSection: 'manual' | 'ai' | 'algorithms';
+    setActiveSection: (section: 'manual' | 'ai' | 'algorithms') => void;
     gates: GateTemplate[];
     handleDragStart: (gate: GateTemplate) => void;
     userQuery: string;
@@ -14,6 +15,7 @@ interface ControlPanelProps {
     isProcessing: boolean;
     exampleQueries: string[];
     aiResponse: string;
+    buildGroverCircuit: (password: string, iterations: number) => void;
 }
 
 export default function ControlPanel(props: ControlPanelProps) {
@@ -27,7 +29,8 @@ export default function ControlPanel(props: ControlPanelProps) {
         handleQuerySubmit,
         isProcessing,
         exampleQueries,
-        aiResponse
+        aiResponse,
+        buildGroverCircuit
     } = props;
 
   return (
@@ -53,15 +56,25 @@ export default function ControlPanel(props: ControlPanelProps) {
                 : 'text-gray-300 hover:bg-white/10'
             }`}
           >
-            🤖 AI Assistant
+            🤖 AI
           </button>
+          <button
+            onClick={() => setActiveSection('algorithms')}
+            className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+                activeSection === 'algorithms'
+                ? 'bg-white/20 text-white'
+                : 'text-gray-300 hover:bg-white/10'
+            }`}
+            >
+            🔬 Algorithms
+            </button>
         </div>
       </div>
-      {/* Manual Builder Section */}
+      
       {activeSection === 'manual' && (
         <GatePalette gates={gates} handleDragStart={handleDragStart} />
       )}
-      {/* AI Assistant Section */}
+      
       {activeSection === 'ai' && (
         <AiAssistant
             userQuery={userQuery}
@@ -70,6 +83,13 @@ export default function ControlPanel(props: ControlPanelProps) {
             isProcessing={isProcessing}
             exampleQueries={exampleQueries}
             aiResponse={aiResponse}
+        />
+      )}
+
+      {activeSection === 'algorithms' && (
+        <GroverSearch
+            buildGroverCircuit={buildGroverCircuit}
+            isProcessing={isProcessing}
         />
       )}
     </div>

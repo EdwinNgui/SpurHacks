@@ -7,7 +7,7 @@ interface CircuitBuilderProps {
   clearCircuit: () => void;
   circuit: QuantumGate[];
   handleDrop: (qubit: number, position: number) => void;
-  activeSection: 'manual' | 'ai';
+  activeSection: 'manual' | 'ai' | 'algorithms';
   simulateCircuit: () => void;
 }
 

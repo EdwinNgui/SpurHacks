@@ -1,5 +1,5 @@
 export interface Gate {
-  type: "H" | "X" | "Z" | "Y" | "CNOT" | "NOT" | "RX" | "RY" | "RZ";
+  type: "H" | "X" | "Z" | "Y" | "CNOT" | "CCNOT" | "NOT" | "RX" | "RY" | "RZ";
   targets: number[];
   params?: number; // for theta value for rx, ry, rz
 }

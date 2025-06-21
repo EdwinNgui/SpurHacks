@@ -19,7 +19,7 @@ export default function QuantumCircuitAssistantPage() {
   const [userQuery, setUserQuery] = useState<string>('');
   const [aiResponse, setAiResponse] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [activeSection, setActiveSection] = useState<'manual' | 'ai'>('manual');
+  const [activeSection, setActiveSection] = useState<'manual' | 'ai' | 'algorithms'>('manual');
 
   // Available quantum gates
   const gates: GateTemplate[] = [
@@ -28,6 +28,7 @@ export default function QuantumCircuitAssistantPage() {
     { type: 'Y', name: 'Pauli-Y', symbol: 'Y', color: 'bg-purple-500', description: 'Y rotation' },
     { type: 'Z', name: 'Pauli-Z', symbol: 'Z', color: 'bg-purple-700', description: 'Phase flip' },
     { type: 'CNOT', name: 'CNOT', symbol: '⊕', color: 'bg-purple-500', description: 'Controlled NOT' },
+    { type: 'CCNOT', name: 'Toffoli', symbol: 'CC⊕', color: 'bg-purple-600', description: 'Controlled-Controlled-NOT' },
     { type: 'RX', name: 'RX', symbol: 'RX', color: 'bg-purple-700', description: 'X rotation' },
     { type: 'RY', name: 'RY', symbol: 'RY', color: 'bg-purple-500', description: 'Y rotation' },
     { type: 'MEASURE', name: 'Measure', symbol: '📊', color: 'bg-purple-700', description: 'Measure qubit' }
@@ -166,6 +167,10 @@ export default function QuantumCircuitAssistantPage() {
             if (gate.control !== undefined && gate.target !== undefined) {
                 backendGate.targets = [gate.control, gate.target];
             }
+        } else if (gate.type === 'CCNOT') {
+            if (gate.control !== undefined && gate.control2 !== undefined && gate.target !== undefined) {
+                backendGate.targets = [gate.control, gate.control2, gate.target];
+            }
         } else {
             if (gate.qubit !== undefined) {
                 backendGate.targets = [gate.qubit];
@@ -224,6 +229,11 @@ export default function QuantumCircuitAssistantPage() {
       newGate.control = control;
       newGate.target = target;
       delete newGate.qubit;
+    } else if (draggedGate.type === 'CCNOT') {
+        newGate.control = 0;
+        newGate.control2 = 1;
+        newGate.target = 2;
+        delete newGate.qubit;
     }
     setCircuit([...circuit, newGate]);
     setDraggedGate(null);
@@ -235,6 +245,63 @@ export default function QuantumCircuitAssistantPage() {
     setFinalStateVector(null);
     setAiResponse('');
   };
+
+  const buildGroverCircuit = (password: string, iterations: number) => {
+    setNumQubits(3);
+    const newCircuit: QuantumGate[] = [];
+    let position = 0;
+    let idCounter = Date.now();
+
+    const addGate = (gate: Omit<QuantumGate, 'id'>) => {
+        newCircuit.push({ ...gate, id: idCounter++ });
+    };
+
+    // 1. Initial Superposition
+    addGate({ type: 'H', qubit: 0, position });
+    addGate({ type: 'H', qubit: 1, position });
+    position++;
+
+    for (let i = 0; i < iterations; i++) {
+        // 2. Oracle
+        if (password[1] === '0') addGate({ type: 'X', qubit: 0, position });
+        if (password[0] === '0') addGate({ type: 'X', qubit: 1, position });
+        position++;
+
+        addGate({ type: 'CCNOT', control: 0, control2: 1, target: 2, position });
+        position++;
+
+        if (password[1] === '0') addGate({ type: 'X', qubit: 0, position });
+        if (password[0] === '0') addGate({ type: 'X', qubit: 1, position });
+        position++;
+
+        // 3. Diffuser
+        addGate({ type: 'H', qubit: 0, position });
+        addGate({ type: 'H', qubit: 1, position });
+        position++;
+        addGate({ type: 'X', qubit: 0, position });
+        addGate({ type: 'X', qubit: 1, position });
+        position++;
+        addGate({ type: 'H', qubit: 1, position });
+        position++;
+        addGate({ type: 'CNOT', control: 0, target: 1, position });
+        position++;
+        addGate({ type: 'H', qubit: 1, position });
+        position++;
+        addGate({ type: 'X', qubit: 0, position });
+        addGate({ type: 'X', qubit: 1, position });
+        position++;
+        addGate({ type: 'H', qubit: 0, position });
+        addGate({ type: 'H', qubit: 1, position });
+        position++;
+    }
+
+    // 4. Measurement
+    addGate({ type: 'MEASURE', qubit: 0, position });
+    addGate({ type: 'MEASURE', qubit: 1, position });
+
+    setCircuit(newCircuit);
+    setActiveSection('manual'); // Switch to manual view to see the circuit
+};
 
   return (
     <div className="relative min-h-screen bg-[#221e29] overflow-hidden">
@@ -263,6 +330,7 @@ export default function QuantumCircuitAssistantPage() {
                 isProcessing={isProcessing}
                 exampleQueries={exampleQueries}
                 aiResponse={aiResponse}
+                buildGroverCircuit={buildGroverCircuit}
             />
             <div className="lg:col-span-3 flex flex-col gap-6">
               <CircuitBuilder
