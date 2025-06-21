@@ -321,11 +321,14 @@ export default function QuantumCircuitAssistantPage() {
 };
 
   return (
-    <div className="relative min-h-screen bg-[#221e29] overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <div className="absolute top-[-10rem] left-[-10rem] w-96 h-96 bg-[#652db4]/20 rounded-full filter blur-3xl opacity-50 animate-pulse"></div>
-        <div className="absolute bottom-[-10rem] right-[-2.5rem] w-96 h-96 bg-[#3f2a61]/30 rounded-full filter blur-3xl opacity-60 animate-pulse" style={{animationDelay: '2s'}}></div>
-        <div className="absolute bottom-[-5rem] left-[-5rem] w-80 h-80 bg-[#652db4]/10 rounded-full filter blur-2xl opacity-70 animate-pulse" style={{animationDelay: '4s'}}></div>
+        <div className="absolute top-[-10rem] left-[-10rem] w-96 h-96 bg-[#652db4]/40 rounded-full filter blur-3xl opacity-70 animate-pulse"></div>
+        <div className="absolute bottom-[-10rem] right-[-2.5rem] w-96 h-96 bg-[#3f2a61]/50 rounded-full filter blur-3xl opacity-80 animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-[-5rem] left-[-5rem] w-80 h-80 bg-[#652db4]/30 rounded-full filter blur-2xl opacity-80 animate-pulse" style={{animationDelay: '4s'}}></div>
+        <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-[#652db4]/50 rounded-full filter blur-3xl opacity-60 animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-1/3 left-1/3 w-64 h-64 bg-[#3f2a61]/40 rounded-full filter blur-2xl opacity-70 animate-pulse" style={{animationDelay: '3s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#652db4]/60 rounded-full filter blur-2xl opacity-50 animate-pulse" style={{animationDelay: '0.5s'}}></div>
       </div>
       <div className="relative z-10 p-6 text-gray-300">
         <div className="max-w-7xl mx-auto">
@@ -335,6 +338,13 @@ export default function QuantumCircuitAssistantPage() {
           <p className="text-center text-gray-300 mb-8">
             {currentPage.description}
           </p>
+          
+          {/* Glow effect behind title */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
+            <div className="w-[40rem] h-[40rem] bg-[#652db4]/50 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute w-[30rem] h-[30rem] bg-[#3f2a61]/40 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
+          </div>
+          
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <ControlPanel
                 activeSection={activeSection}
