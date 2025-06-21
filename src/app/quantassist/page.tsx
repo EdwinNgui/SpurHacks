@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { runCircuit } from '@/lib/simulation';
-import { Circuit, Gate } from '@/lib/types';
+import { Circuit, Gate, Complex } from '@/lib/types';
 
 // Type definitions
 interface QuantumGate {
@@ -42,6 +42,8 @@ export default function QuantumCircuitAssistantPage() {
   const [circuit, setCircuit] = useState<QuantumGate[]>([]);
   const [draggedGate, setDraggedGate] = useState<GateTemplate | null>(null);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
+  const [finalStateVector, setFinalStateVector] = useState<Complex[] | null>(null);
+  const [interpretationMode, setInterpretationMode] = useState<'simple' | 'technical'>('simple');
   const [userQuery, setUserQuery] = useState<string>('');
   const [aiResponse, setAiResponse] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -218,6 +220,7 @@ export default function QuantumCircuitAssistantPage() {
 
     // 2. Run the simulation using the backend.
     const finalStateVector = runCircuit(backendCircuit, numQubits);
+    setFinalStateVector(finalStateVector);
 
     // 3. Process the results.
     const probabilities: SimulationResult = {};
@@ -256,6 +259,7 @@ export default function QuantumCircuitAssistantPage() {
   const clearCircuit = () => {
     setCircuit([]);
     setSimulationResult(null);
+    setFinalStateVector(null);
     setAiResponse('');
   };
 
@@ -471,20 +475,54 @@ export default function QuantumCircuitAssistantPage() {
               </div>
               {/* Interpretation Section */}
               <div className="bg-[#3f2a61]/30 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg p-6 flex flex-col">
-                <h3 className="text-xl font-semibold mb-4 text-white">Interpretation</h3>
-                {simulationResult ? (
-                  <div className="mt-2 p-3 bg-black/20 rounded-lg flex-1 border border-white/10">
-                    <h4 className="font-semibold text-white mb-2">Result Analysis:</h4>
-                    <p className="text-sm text-gray-300">
-                      Each |state⟩ represents a possible measurement outcome.<br />
-                      The percentages show the probability of measuring each state.<br />
-                      {Object.keys(simulationResult).length > 1 ? (
-                        <>Multiple outcomes indicate <b>quantum superposition</b>!</>
-                      ) : (
-                        <>Single outcome indicates a <b>classical state</b>.</>
-                      )}
-                    </p>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-semibold text-white">Interpretation</h3>
+                  <div className="flex items-center gap-2">
+                      <span className={`text-sm ${interpretationMode === 'simple' ? 'text-white' : 'text-gray-400'}`}>Simple</span>
+                      <button
+                          onClick={() => setInterpretationMode(interpretationMode === 'simple' ? 'technical' : 'simple')}
+                          className="w-12 h-6 rounded-full p-1 bg-black/20 flex items-center transition-colors"
+                      >
+                          <div
+                              className={`w-4 h-4 rounded-full bg-white transform transition-transform ${
+                                  interpretationMode === 'technical' ? 'translate-x-6' : ''
+                              }`}
+                          />
+                      </button>
+                      <span className={`text-sm ${interpretationMode === 'technical' ? 'text-white' : 'text-gray-400'}`}>Technical</span>
                   </div>
+                </div>
+
+                {simulationResult ? (
+                  <>
+                    {interpretationMode === 'simple' ? (
+                      <div className="mt-2 p-3 bg-black/20 rounded-lg flex-1 border border-white/10">
+                        <h4 className="font-semibold text-white mb-2">Result Analysis:</h4>
+                        <p className="text-sm text-gray-300">
+                          Each |state⟩ represents a possible measurement outcome.<br />
+                          The percentages show the probability of observing each state when the qubits are measured.<br />
+                          {Object.keys(simulationResult).length > 1 ? (
+                            <>This mix of outcomes indicates the circuit has created <b>quantum superposition</b>!</>
+                          ) : (
+                            <>A single outcome suggests the circuit produced a <b>classical state</b>.</>
+                          )}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="mt-2 p-3 bg-black/40 rounded-lg flex-1 border border-white/10 text-sm text-gray-300 overflow-y-auto" style={{maxHeight: '300px'}}>
+                          <h4 className="font-semibold text-white mb-2">Technical Details:</h4>
+                          <p className="mb-2">The final state of the system is described by a state vector in a Hilbert space of dimension 2<sup>{numQubits}</sup>. Each component is a complex amplitude for a basis state.</p>
+                          <div className="font-mono text-xs whitespace-pre-wrap break-words bg-black/20 p-2 rounded">
+                              {finalStateVector && finalStateVector.map((c, i) =>
+                                  `|${i.toString(2).padStart(numQubits, '0')}⟩: ${c[0].toFixed(3)} + ${c[1].toFixed(3)}i`
+                              ).join('\n')}
+                          </div>
+                          <p className="mt-2">
+                              The probability of measuring a state is the squared magnitude of its amplitude: P = |a+bi|² = a² + b².
+                          </p>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <p className="text-gray-400 italic flex-1">Interpretation will appear here after running a circuit.</p>
                 )}
