@@ -1,15 +1,13 @@
 export interface Gate {
-  type: "H" | "X" | "Z" | "CNOT" | "RY" | "RZ";
-  qubit: number;
-  control?: number;
-  time: number;
+  type: "H" | "X" | "Z" | "CNOT" | "NOT" | "RX" | "RY" | "RZ";
+  targets: number[];
+  params?: number; // for theta value for rx, ry, rz
 }
 
 export interface Circuit {
-  qubits: number;
-  gates: Gate[];
+  gates: Gate[][];
 }
 
-type Complex = [number, number]; // [real, imag]
-type Matrix = Complex[][];
-type Vector = Complex[];
+export type Complex = [number, number]; // [real, imag]
+export type Matrix = Complex[][];
+export type Vector = Complex[];

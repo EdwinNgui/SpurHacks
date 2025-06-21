@@ -54,7 +54,7 @@ function mulComplex([a, b]: Complex, [c, d]: Complex): Complex {
 /**
  * Apply a single-qubit gate to a multi-qubit state vector.
  */
-function applySingleQubitGate(
+export function applySingleQubitGate(
   stateVector: Vector, // Length = 2^n
   gate: Matrix, // 2x2 matrix
   targetQubit: number, // 0 = least significant
@@ -76,7 +76,7 @@ function applySingleQubitGate(
 /**
  * Apply a 2-qubit gate (e.g., CNOT) to a multi-qubit state vector.
  */
-function applyTwoQubitGate(
+export function applyTwoQubitGate(
   stateVector: Vector, // Length = 2^n
   gate4x4: Matrix, // 4x4 gate matrix
   control: number, // control qubit index

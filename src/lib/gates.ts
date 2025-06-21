@@ -63,6 +63,21 @@ export const cnotGate: Complex[][] = [
 ];
 
 // TODO: decide if theta should be adjustable here or hardcoded
+export function rxGate(theta: number): Complex[][] {
+  const cos = Math.cos(theta / 2);
+  const sin = Math.sin(theta / 2);
+  return [
+    [
+      [cos, 0],
+      [0, -sin],
+    ], // -i·sin = [0, -sin]
+    [
+      [0, -sin],
+      [cos, 0],
+    ],
+  ];
+}
+
 export function ryGate(theta: number): Complex[][] {
   const cos = Math.cos(theta / 2);
   const sin = Math.sin(theta / 2);
@@ -78,17 +93,19 @@ export function ryGate(theta: number): Complex[][] {
   ];
 }
 
-export function rxGate(theta: number): Complex[][] {
-  const cos = Math.cos(theta / 2);
-  const sin = Math.sin(theta / 2);
+export function rzGate(theta: number): Complex[][] {
+  const halfTheta = theta / 2;
+  const cos = Math.cos(halfTheta);
+  const sin = Math.sin(halfTheta);
+
   return [
     [
-      [cos, 0],
-      [0, -sin],
-    ], // -i·sin = [0, -sin]
+      [cos, -sin],
+      [0, 0],
+    ], // e^(-iθ/2)
     [
-      [0, -sin],
-      [cos, 0],
-    ],
+      [0, 0],
+      [cos, sin],
+    ], // e^(iθ/2)
   ];
 }
