@@ -40,33 +40,36 @@ export default function ControlPanel(props: ControlPanelProps) {
         <div className="flex">
           <button
             onClick={() => setActiveSection('manual')}
-            className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+            className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors flex flex-col items-center ${
               activeSection === 'manual' 
                 ? 'bg-white/20 text-white' 
                 : 'text-gray-300 hover:bg-white/10'
             }`}
           >
-            🔧 Manual
+            <span>🔧</span>
+            <span className="mt-1">Manual</span>
           </button>
           <button
             onClick={() => setActiveSection('ai')}
-            className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+            className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors flex flex-col items-center ${
               activeSection === 'ai' 
                 ? 'bg-white/20 text-white' 
                 : 'text-gray-300 hover:bg-white/10'
             }`}
           >
-            🤖 AI
+            <span>🤖</span>
+            <span className="mt-1">AI</span>
           </button>
           <button
             onClick={() => setActiveSection('algorithms')}
-            className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+            className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors flex flex-col items-center ${
                 activeSection === 'algorithms'
                 ? 'bg-white/20 text-white'
                 : 'text-gray-300 hover:bg-white/10'
             }`}
             >
-            🔬 Algorithms
+            <span>🔬</span>
+            <span className="mt-1">Algorithms</span>
             </button>
         </div>
       </div>
