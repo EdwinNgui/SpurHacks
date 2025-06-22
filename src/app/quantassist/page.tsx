@@ -518,6 +518,30 @@ export default function QuantumCircuitAssistantPage() {
           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#652db4]/60 rounded-full filter blur-2xl opacity-50 animate-pulse"
           style={{ animationDelay: "0.5s" }}
         ></div>
+        <div
+          className="absolute top-1/4 right-[-5rem] w-56 h-56 bg-[#652db4]/35 rounded-full filter blur-3xl opacity-65 animate-pulse"
+          style={{ animationDelay: "2.5s" }}
+        ></div>
+        <div
+          className="absolute bottom-1/4 right-1/3 w-40 h-40 bg-[#3f2a61]/45 rounded-full filter blur-2xl opacity-75 animate-pulse"
+          style={{ animationDelay: "1.5s" }}
+        ></div>
+        <div
+          className="absolute top-2/3 left-1/4 w-32 h-32 bg-[#652db4]/55 rounded-full filter blur-xl opacity-60 animate-pulse"
+          style={{ animationDelay: "3.5s" }}
+        ></div>
+        <div
+          className="absolute top-1/6 left-2/3 w-44 h-44 bg-[#3f2a61]/30 rounded-full filter blur-2xl opacity-70 animate-pulse"
+          style={{ animationDelay: "0.8s" }}
+        ></div>
+        <div
+          className="absolute bottom-1/6 right-1/6 w-36 h-36 bg-[#652db4]/40 rounded-full filter blur-xl opacity-55 animate-pulse"
+          style={{ animationDelay: "4.2s" }}
+        ></div>
+        <div
+          className="absolute top-3/4 left-1/2 w-28 h-28 bg-[#3f2a61]/50 rounded-full filter blur-lg opacity-80 animate-pulse"
+          style={{ animationDelay: "1.8s" }}
+        ></div>
       </div>
       <div className="relative z-10 p-6 text-gray-300">
         <div className="max-w-7xl mx-auto">
