@@ -8,6 +8,7 @@ export interface QuantumGate {
   control2?: number;
   target?: number;
   position: number;
+  theta?: number; // For RX, RY, RZ gates
 }
 
 export interface GateTemplate {
