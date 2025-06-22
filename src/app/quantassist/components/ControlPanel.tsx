@@ -5,6 +5,39 @@ import GroverSearch from "./GroverSearch";
 import { GateTemplate } from "../types";
 
 interface ControlPanelProps {
+<<<<<<< HEAD
+    activeSection: 'manual' | 'ai' | 'algorithms';
+    setActiveSection: (section: 'manual' | 'ai' | 'algorithms') => void;
+    gates: GateTemplate[];
+    handleDragStart: (gate: GateTemplate) => void;
+    userQuery: string;
+    setUserQuery: (query: string) => void;
+    handleQuerySubmit: () => void;
+    isProcessing: boolean;
+    exampleQueries: string[];
+    aiResponse: string;
+    buildGroverCircuit: (password: string, iterations: number) => void;
+    onAnalyzeCircuit?: () => void;
+    hasCircuit: boolean;
+}
+
+export default function ControlPanel(props: ControlPanelProps) {
+    const {
+        activeSection,
+        setActiveSection,
+        gates,
+        handleDragStart,
+        userQuery,
+        setUserQuery,
+        handleQuerySubmit,
+        isProcessing,
+        exampleQueries,
+        aiResponse,
+        buildGroverCircuit,
+        onAnalyzeCircuit,
+        hasCircuit
+    } = props;
+=======
   activeSection: "manual" | "ai" | "algorithms";
   setActiveSection: (section: "manual" | "ai" | "algorithms") => void;
   gates: GateTemplate[];
@@ -33,6 +66,7 @@ export default function ControlPanel(props: ControlPanelProps) {
     aiResponse,
     buildGroverCircuit,
   } = props;
+>>>>>>> 27f4445f11db2c3a7406df6e043744f43e36bfeb
 
   return (
     <div className="lg:col-span-1 space-y-6">
@@ -74,12 +108,30 @@ export default function ControlPanel(props: ControlPanelProps) {
           </button>
         </div>
       </div>
+<<<<<<< HEAD
+      
+      {activeSection === 'manual' && (
+        <GatePalette gates={gates} handleDragStart={handleDragStart} />
+      )}
+      
+      {activeSection === 'ai' && (
+        <AiAssistant
+            userQuery={userQuery}
+            setUserQuery={setUserQuery}
+            handleQuerySubmit={handleQuerySubmit}
+            isProcessing={isProcessing}
+            exampleQueries={exampleQueries}
+            aiResponse={aiResponse}
+            onAnalyzeCircuit={onAnalyzeCircuit}
+            hasCircuit={hasCircuit}
+=======
 
       {activeSection === "manual" && (
         <GatePalette
           gates={gates}
           handleDragStart={handleDragStart}
           numQubits={props.numQubits}
+>>>>>>> 27f4445f11db2c3a7406df6e043744f43e36bfeb
         />
       )}
 

@@ -1,5 +1,12 @@
 "use client";
 
+<<<<<<< HEAD
+import React, { useState, useEffect } from 'react';
+import { runCircuit } from '@/lib/simulation';
+import { Circuit, Gate, Complex } from '@/lib/types';
+import { QuantumGate, GateTemplate, SimulationResult, AlgorithmTemplate } from './types';
+import { aiService, AIResponse } from '@/lib/ai-service';
+=======
 import React, { useState } from "react";
 import { runCircuit } from "@/lib/simulation";
 import { Circuit, Gate, Complex } from "@/lib/types";
@@ -9,11 +16,27 @@ import {
   SimulationResult,
   AlgorithmTemplate,
 } from "./types";
+>>>>>>> 27f4445f11db2c3a7406df6e043744f43e36bfeb
 
 import ControlPanel from "./components/ControlPanel";
 import CircuitBuilder from "./components/CircuitBuilder";
 import ResultsPanel from "./components/ResultsPanel";
 
+<<<<<<< HEAD
+const pageConfig: Record<string, { title: string; description: string }> = {
+    manual: {
+        title: "Quantum Circuit Sandbox",
+        description: "Manually build and simulate your own quantum circuits by dragging gates."
+    },
+    ai: {
+        title: "AI Circuit Builder",
+        description: "Describe the circuit you want, and let the AI build it for you."
+    },
+    algorithms: {
+        title: "Grover's Playground",
+        description: "Explore the quantum search algorithm in an interactive sandbox."
+    }
+=======
 const pageConfig = {
   manual: {
     title: "Quantum Circuit Sandbox",
@@ -30,6 +53,7 @@ const pageConfig = {
     description:
       "Explore the quantum search algorithm in an interactive sandbox.",
   },
+>>>>>>> 27f4445f11db2c3a7406df6e043744f43e36bfeb
 };
 
 export default function QuantumCircuitAssistantPage() {
@@ -154,9 +178,106 @@ export default function QuantumCircuitAssistantPage() {
     },
   };
 
-  // LLM-like processing for user queries
+  // AI-powered processing for user queries
   const processUserQuery = async (query: string) => {
     setIsProcessing(true);
+<<<<<<< HEAD
+    setAiResponse('🤔 Thinking...');
+    
+    try {
+      const aiResult: AIResponse = await aiService.generateCircuitFromPrompt(query);
+      
+      console.log('Raw AI result:', aiResult); // Debug log
+      
+      // Validate and clean the AI-generated circuit
+      const validatedCircuit = aiResult.circuit
+        .filter(gate => {
+          // Ensure gate is not empty or null
+          if (!gate || typeof gate !== 'object' || Object.keys(gate).length === 0) {
+            console.warn('Empty or null gate found:', gate);
+            return false;
+          }
+          
+          // Ensure gate has required properties
+          if (!gate.id || !gate.type || gate.position === undefined) {
+            console.warn('Invalid gate found - missing required properties:', gate);
+            return false;
+          }
+          
+          // Validate gate types
+          const validTypes = ['H', 'X', 'Y', 'Z', 'CNOT', 'CCNOT', 'RX', 'RY', 'MEASURE'];
+          if (!validTypes.includes(gate.type)) {
+            console.warn('Invalid gate type:', gate.type, 'in gate:', gate);
+            return false;
+          }
+          
+          // Validate qubit indices for single qubit gates
+          if (['H', 'X', 'Y', 'Z', 'RX', 'RY', 'MEASURE'].includes(gate.type)) {
+            if (gate.qubit === undefined || gate.qubit < 0 || gate.qubit >= aiResult.qubits) {
+              console.warn('Invalid qubit index:', gate.qubit, 'for gate:', gate);
+              return false;
+            }
+          }
+          
+          // Validate CNOT gates
+          if (gate.type === 'CNOT') {
+            if (gate.control === undefined || gate.target === undefined) {
+              console.warn('CNOT gate missing control or target:', gate);
+              return false;
+            }
+            if (gate.control < 0 || gate.control >= aiResult.qubits || 
+                gate.target < 0 || gate.target >= aiResult.qubits) {
+              console.warn('CNOT gate has invalid indices:', gate);
+              return false;
+            }
+          }
+          
+          // Validate CCNOT gates
+          if (gate.type === 'CCNOT') {
+            if (gate.control === undefined || gate.control2 === undefined || gate.target === undefined) {
+              console.warn('CCNOT gate missing control or target:', gate);
+              return false;
+            }
+            if (gate.control < 0 || gate.control >= aiResult.qubits || 
+                gate.control2 < 0 || gate.control2 >= aiResult.qubits ||
+                gate.target < 0 || gate.target >= aiResult.qubits) {
+              console.warn('CCNOT gate has invalid indices:', gate);
+              return false;
+            }
+          }
+          
+          return true;
+        })
+        .map((gate, index) => ({
+          ...gate,
+          id: Date.now() + index,
+          position: Math.max(0, gate.position || 0) // Ensure position is non-negative
+        }));
+      
+      console.log('Validated circuit:', validatedCircuit); // Debug log
+      
+      // Update the circuit with validated gates
+      setNumQubits(aiResult.qubits);
+      setCircuit(validatedCircuit);
+      
+      // Format the AI response
+      let responseText = aiResult.explanation;
+      if (aiResult.algorithm) {
+        responseText += `\n\n**Algorithm:** ${aiResult.algorithm}`;
+      }
+      if (aiResult.description) {
+        responseText += `\n**Description:** ${aiResult.description}`;
+      }
+      responseText += `\n\nI've built the circuit for you. Click "Run Quantum Circuit" to see the results!`;
+      
+      setAiResponse(responseText);
+    } catch (error) {
+      console.error('Error processing AI query:', error);
+      setAiResponse('Sorry, I encountered an error while generating your circuit. Please try again or use one of the example queries.');
+    } finally {
+      setIsProcessing(false);
+    }
+=======
     await new Promise((resolve) => setTimeout(resolve, 1500));
     const lowerQuery = query.toLowerCase();
     let selectedAlgorithm: AlgorithmTemplate | null = null;
@@ -227,11 +348,25 @@ export default function QuantumCircuitAssistantPage() {
       );
     }
     setIsProcessing(false);
+>>>>>>> 27f4445f11db2c3a7406df6e043744f43e36bfeb
   };
 
   const handleQuerySubmit = () => {
     if (userQuery.trim()) {
       processUserQuery(userQuery);
+    }
+  };
+
+  const handleAnalyzeCircuit = async () => {
+    if (circuit.length === 0) return;
+    
+    try {
+      const analysis = await aiService.analyzeCircuit(circuit, numQubits, simulationResult);
+      // For now, we'll just log the analysis. In a full implementation, 
+      // you'd want to display this in the UI
+      console.log('Circuit Analysis:', analysis);
+    } catch (error) {
+      console.error('Error analyzing circuit:', error);
     }
   };
 
@@ -241,6 +376,21 @@ export default function QuantumCircuitAssistantPage() {
     "I want to see superposition",
     "Build a quantum search algorithm",
     "Demonstrate quantum interference",
+<<<<<<< HEAD
+    "Create a Bell state circuit",
+    "Show me quantum teleportation",
+    "Build a quantum random number generator",
+    "Demonstrate quantum phase estimation",
+    "Create a quantum Fourier transform"
+  ];
+
+  const simulateCircuit = () => {
+    // 1. Filter out MEASURE gates and transform the circuit for the backend.
+    const maxPosition = circuit.reduce((max: number, gate: QuantumGate) => Math.max(max, gate.position), 0);
+    const steps: Gate[][] = Array.from({ length: maxPosition + 1 }, () => []);
+
+    const frontendCircuit = circuit.filter((gate: QuantumGate) => gate.type !== 'MEASURE');
+=======
   ];
 
   const simulateCircuit = () => {
@@ -255,6 +405,7 @@ export default function QuantumCircuitAssistantPage() {
         type: gate.type as Gate["type"],
         targets: [],
       };
+>>>>>>> 27f4445f11db2c3a7406df6e043744f43e36bfeb
 
       if (gate.type === "CNOT") {
         if (gate.control !== undefined && gate.target !== undefined) {
@@ -420,6 +571,79 @@ export default function QuantumCircuitAssistantPage() {
     setActiveSection("manual"); // Switch to manual view to see the circuit
   };
 
+  // Development helper - remove in production
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).testAI = async () => {
+        console.log('Testing AI Circuit API...');
+        try {
+          const result = await aiService.generateCircuitFromPrompt('Create a quantum coin flip');
+          console.log('AI Test Result:', result);
+          return result;
+        } catch (error) {
+          console.error('AI Test Error:', error);
+          return null;
+        }
+      };
+      
+      (window as any).testAPIRoute = async () => {
+        console.log('Testing API Route directly...');
+        try {
+          const response = await fetch('/api/ai-circuit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userQuery: 'Create a quantum coin flip' })
+          });
+          
+          const data = await response.json();
+          console.log('API Route Test Result:', data);
+          return data;
+        } catch (error) {
+          console.error('API Route Test Error:', error);
+          return null;
+        }
+      };
+      
+      (window as any).testCircuitSimulation = () => {
+        console.log('Testing circuit simulation...');
+        try {
+          // Test with a simple valid circuit
+          const testCircuit: Circuit = {
+            gates: [
+              [
+                { type: 'H' as const, targets: [0] }
+              ],
+              [
+                { type: 'H' as const, targets: [0] } // Using H instead of MEASURE since MEASURE isn't in the Gate type
+              ]
+            ]
+          };
+          
+          const result = runCircuit(testCircuit, 1);
+          console.log('Simulation test result:', result);
+          return result;
+        } catch (error) {
+          console.error('Simulation test error:', error);
+          return null;
+        }
+      };
+      
+      (window as any).debugCircuit = (circuit: any) => {
+        console.log('Debugging circuit:', circuit);
+        if (circuit && Array.isArray(circuit)) {
+          circuit.forEach((gate: any, index: number) => {
+            console.log(`Gate ${index}:`, gate);
+            if (!gate || typeof gate !== 'object' || Object.keys(gate).length === 0) {
+              console.warn(`Gate ${index} is empty or invalid:`, gate);
+            }
+          });
+        }
+      };
+    }
+  }, []);
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       <div className="absolute inset-0 z-0">
@@ -465,6 +689,21 @@ export default function QuantumCircuitAssistantPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <ControlPanel
+<<<<<<< HEAD
+                activeSection={activeSection}
+                setActiveSection={setActiveSection}
+                gates={gates}
+                handleDragStart={handleDragStart}
+                userQuery={userQuery}
+                setUserQuery={setUserQuery}
+                handleQuerySubmit={handleQuerySubmit}
+                isProcessing={isProcessing}
+                exampleQueries={exampleQueries}
+                aiResponse={aiResponse}
+                buildGroverCircuit={buildGroverCircuit}
+                onAnalyzeCircuit={handleAnalyzeCircuit}
+                hasCircuit={circuit.length > 0}
+=======
               activeSection={activeSection}
               setActiveSection={setActiveSection}
               gates={gates}
@@ -477,6 +716,7 @@ export default function QuantumCircuitAssistantPage() {
               aiResponse={aiResponse}
               buildGroverCircuit={buildGroverCircuit}
               numQubits={numQubits}
+>>>>>>> 27f4445f11db2c3a7406df6e043744f43e36bfeb
             />
             <div className="lg:col-span-3 flex flex-col gap-6">
               <CircuitBuilder

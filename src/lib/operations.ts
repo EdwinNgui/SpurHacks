@@ -44,11 +44,35 @@ function matrixVectorMultiply(
 }
 
 function addComplex([a, b]: Complex, [c, d]: Complex): Complex {
-  return [a + c, b + d];
+  // Validate inputs
+  if (!Array.isArray([a, b]) || !Array.isArray([c, d])) {
+    console.error('addComplex received invalid inputs:', [a, b], [c, d]);
+    return [0, 0]; // Return zero complex number as fallback
+  }
+  
+  // Ensure all values are numbers
+  const aVal = typeof a === 'number' ? a : 0;
+  const bVal = typeof b === 'number' ? b : 0;
+  const cVal = typeof c === 'number' ? c : 0;
+  const dVal = typeof d === 'number' ? d : 0;
+  
+  return [aVal + cVal, bVal + dVal];
 }
 
 function mulComplex([a, b]: Complex, [c, d]: Complex): Complex {
-  return [a * c - b * d, a * d + b * c];
+  // Validate inputs
+  if (!Array.isArray([a, b]) || !Array.isArray([c, d])) {
+    console.error('mulComplex received invalid inputs:', [a, b], [c, d]);
+    return [0, 0]; // Return zero complex number as fallback
+  }
+  
+  // Ensure all values are numbers
+  const aVal = typeof a === 'number' ? a : 0;
+  const bVal = typeof b === 'number' ? b : 0;
+  const cVal = typeof c === 'number' ? c : 0;
+  const dVal = typeof d === 'number' ? d : 0;
+  
+  return [aVal * cVal - bVal * dVal, aVal * dVal + bVal * cVal];
 }
 
 /**
