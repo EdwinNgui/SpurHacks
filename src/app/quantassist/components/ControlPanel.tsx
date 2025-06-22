@@ -1,11 +1,12 @@
 import React from "react";
 import GatePalette from "./GatePalette";
 import AiAssistant from "./AiAssistant";
+import GroverSearch from "./GroverSearch";
 import { GateTemplate } from "../types";
 
 interface ControlPanelProps {
-  activeSection: "manual" | "ai";
-  setActiveSection: (section: "manual" | "ai") => void;
+  activeSection: "manual" | "ai" | "algorithms";
+  setActiveSection: (section: "manual" | "ai" | "algorithms") => void;
   gates: GateTemplate[];
   handleDragStart: (gate: GateTemplate) => void;
   userQuery: string;
@@ -14,6 +15,7 @@ interface ControlPanelProps {
   isProcessing: boolean;
   exampleQueries: string[];
   aiResponse: string;
+  buildGroverCircuit: (password: string, iterations: number) => void;
   numQubits: number;
 }
 
@@ -29,7 +31,7 @@ export default function ControlPanel(props: ControlPanelProps) {
     isProcessing,
     exampleQueries,
     aiResponse,
-    numQubits,
+    buildGroverCircuit,
   } = props;
 
   return (
@@ -39,35 +41,48 @@ export default function ControlPanel(props: ControlPanelProps) {
         <div className="flex">
           <button
             onClick={() => setActiveSection("manual")}
-            className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+            className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors flex flex-col items-center ${
               activeSection === "manual"
                 ? "bg-white/20 text-white"
                 : "text-gray-300 hover:bg-white/10"
             }`}
           >
-            🔧 Manual
+            <span>🔧</span>
+            <span className="mt-1">Manual</span>
           </button>
           <button
             onClick={() => setActiveSection("ai")}
-            className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+            className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors flex flex-col items-center ${
               activeSection === "ai"
                 ? "bg-white/20 text-white"
                 : "text-gray-300 hover:bg-white/10"
             }`}
           >
-            🤖 AI Assistant
+            <span>🤖</span>
+            <span className="mt-1">AI</span>
+          </button>
+          <button
+            onClick={() => setActiveSection("algorithms")}
+            className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors flex flex-col items-center ${
+              activeSection === "algorithms"
+                ? "bg-white/20 text-white"
+                : "text-gray-300 hover:bg-white/10"
+            }`}
+          >
+            <span>🔬</span>
+            <span className="mt-1">Algorithms</span>
           </button>
         </div>
       </div>
-      {/* Manual Builder Section */}
+
       {activeSection === "manual" && (
         <GatePalette
           gates={gates}
           handleDragStart={handleDragStart}
-          numQubits={numQubits}
+          numQubits={props.numQubits}
         />
       )}
-      {/* AI Assistant Section */}
+
       {activeSection === "ai" && (
         <AiAssistant
           userQuery={userQuery}
@@ -76,6 +91,13 @@ export default function ControlPanel(props: ControlPanelProps) {
           isProcessing={isProcessing}
           exampleQueries={exampleQueries}
           aiResponse={aiResponse}
+        />
+      )}
+
+      {activeSection === "algorithms" && (
+        <GroverSearch
+          buildGroverCircuit={buildGroverCircuit}
+          isProcessing={isProcessing}
         />
       )}
     </div>

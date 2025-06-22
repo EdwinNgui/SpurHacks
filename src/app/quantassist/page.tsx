@@ -14,6 +14,24 @@ import ControlPanel from "./components/ControlPanel";
 import CircuitBuilder from "./components/CircuitBuilder";
 import ResultsPanel from "./components/ResultsPanel";
 
+const pageConfig = {
+  manual: {
+    title: "Quantum Circuit Sandbox",
+    description:
+      "Manually build and simulate your own quantum circuits by dragging gates.",
+  },
+  ai: {
+    title: "AI Circuit Builder",
+    description:
+      "Describe the circuit you want, and let the AI build it for you.",
+  },
+  algorithms: {
+    title: "Grover's Playground",
+    description:
+      "Explore the quantum search algorithm in an interactive sandbox.",
+  },
+};
+
 export default function QuantumCircuitAssistantPage() {
   const [numQubits, setNumQubitsState] = useState<number>(2);
   const [circuit, setCircuit] = useState<QuantumGate[]>([]);
@@ -29,17 +47,11 @@ export default function QuantumCircuitAssistantPage() {
   const [userQuery, setUserQuery] = useState<string>("");
   const [aiResponse, setAiResponse] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [activeSection, setActiveSection] = useState<"manual" | "ai">("manual");
+  const [activeSection, setActiveSection] = useState<
+    "manual" | "ai" | "algorithms"
+  >("manual");
 
-  // Custom setNumQubits function that removes CNOT gates when qubit count is reduced to 1
-  const setNumQubits = (newCount: number) => {
-    setNumQubitsState(newCount);
-    if (newCount === 1) {
-      // Remove all CNOT gates when qubit count is reduced to 1
-      const filteredCircuit = circuit.filter((gate) => gate.type !== "CNOT");
-      setCircuit(filteredCircuit);
-    }
-  };
+  const currentPage = pageConfig[activeSection];
 
   // Available quantum gates
   const gates: GateTemplate[] = [
@@ -79,6 +91,13 @@ export default function QuantumCircuitAssistantPage() {
       description: "Controlled NOT",
     },
     {
+      type: "CCNOT",
+      name: "Toffoli",
+      symbol: "CC⊕",
+      color: "bg-purple-600",
+      description: "Controlled-Controlled-NOT",
+    },
+    {
       type: "RX",
       name: "RX",
       symbol: "RX",
@@ -91,13 +110,6 @@ export default function QuantumCircuitAssistantPage() {
       symbol: "RY",
       color: "bg-purple-500",
       description: "Y rotation",
-    },
-    {
-      type: "RZ",
-      name: "RZ",
-      symbol: "RZ",
-      color: "bg-purple-700",
-      description: "Z rotation",
     },
     {
       type: "MEASURE",
@@ -228,7 +240,7 @@ export default function QuantumCircuitAssistantPage() {
       selectedAlgorithm = quantumAlgorithms.superposition;
     }
     if (selectedAlgorithm) {
-      setNumQubits(selectedAlgorithm.qubits);
+      setNumQubitsState(selectedAlgorithm.qubits);
       setCircuit(
         selectedAlgorithm.circuit.map((gate, index) => ({
           ...gate,
@@ -275,6 +287,14 @@ export default function QuantumCircuitAssistantPage() {
       if (gate.type === "CNOT") {
         if (gate.control !== undefined && gate.target !== undefined) {
           backendGate.targets = [gate.control, gate.target];
+        }
+      } else if (gate.type === "CCNOT") {
+        if (
+          gate.control !== undefined &&
+          gate.control2 !== undefined &&
+          gate.target !== undefined
+        ) {
+          backendGate.targets = [gate.control, gate.control2, gate.target];
         }
       } else {
         if (gate.qubit !== undefined) {
@@ -347,6 +367,11 @@ export default function QuantumCircuitAssistantPage() {
       newGate.control = control;
       newGate.target = target;
       delete newGate.qubit;
+    } else if (draggedGate.type === "CCNOT") {
+      newGate.control = 0;
+      newGate.control2 = 1;
+      newGate.target = 2;
+      delete newGate.qubit;
     }
     // Add default theta for rotation gates
     if (
@@ -367,27 +392,106 @@ export default function QuantumCircuitAssistantPage() {
     setAiResponse("");
   };
 
+  const buildGroverCircuit = (password: string, iterations: number) => {
+    setNumQubitsState(3);
+    const newCircuit: QuantumGate[] = [];
+    let position = 0;
+    let idCounter = Date.now();
+
+    const addGate = (gate: Omit<QuantumGate, "id">) => {
+      newCircuit.push({ ...gate, id: idCounter++ });
+    };
+
+    // 1. Initial Superposition
+    addGate({ type: "H", qubit: 0, position });
+    addGate({ type: "H", qubit: 1, position });
+    position++;
+
+    for (let i = 0; i < iterations; i++) {
+      // 2. Oracle
+      if (password[1] === "0") addGate({ type: "X", qubit: 0, position });
+      if (password[0] === "0") addGate({ type: "X", qubit: 1, position });
+      position++;
+
+      addGate({ type: "CCNOT", control: 0, control2: 1, target: 2, position });
+      position++;
+
+      if (password[1] === "0") addGate({ type: "X", qubit: 0, position });
+      if (password[0] === "0") addGate({ type: "X", qubit: 1, position });
+      position++;
+
+      // 3. Diffuser
+      addGate({ type: "H", qubit: 0, position });
+      addGate({ type: "H", qubit: 1, position });
+      position++;
+      addGate({ type: "X", qubit: 0, position });
+      addGate({ type: "X", qubit: 1, position });
+      position++;
+      addGate({ type: "H", qubit: 1, position });
+      position++;
+      addGate({ type: "CNOT", control: 0, target: 1, position });
+      position++;
+      addGate({ type: "H", qubit: 1, position });
+      position++;
+      addGate({ type: "X", qubit: 0, position });
+      addGate({ type: "X", qubit: 1, position });
+      position++;
+      addGate({ type: "H", qubit: 0, position });
+      addGate({ type: "H", qubit: 1, position });
+      position++;
+    }
+
+    // 4. Measurement
+    addGate({ type: "MEASURE", qubit: 0, position });
+    addGate({ type: "MEASURE", qubit: 1, position });
+
+    setCircuit(newCircuit);
+    setActiveSection("manual"); // Switch to manual view to see the circuit
+  };
+
   return (
-    <div className="relative min-h-screen bg-[#221e29] overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <div className="absolute top-[-10rem] left-[-10rem] w-96 h-96 bg-[#652db4]/20 rounded-full filter blur-3xl opacity-50 animate-pulse"></div>
+        <div className="absolute top-[-10rem] left-[-10rem] w-96 h-96 bg-[#652db4]/40 rounded-full filter blur-3xl opacity-70 animate-pulse"></div>
         <div
-          className="absolute bottom-[-10rem] right-[-2.5rem] w-96 h-96 bg-[#3f2a61]/30 rounded-full filter blur-3xl opacity-60 animate-pulse"
+          className="absolute bottom-[-10rem] right-[-2.5rem] w-96 h-96 bg-[#3f2a61]/50 rounded-full filter blur-3xl opacity-80 animate-pulse"
           style={{ animationDelay: "2s" }}
         ></div>
         <div
-          className="absolute bottom-[-5rem] left-[-5rem] w-80 h-80 bg-[#652db4]/10 rounded-full filter blur-2xl opacity-70 animate-pulse"
+          className="absolute bottom-[-5rem] left-[-5rem] w-80 h-80 bg-[#652db4]/30 rounded-full filter blur-2xl opacity-80 animate-pulse"
           style={{ animationDelay: "4s" }}
+        ></div>
+        <div
+          className="absolute top-1/3 right-1/4 w-72 h-72 bg-[#652db4]/50 rounded-full filter blur-3xl opacity-60 animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
+        <div
+          className="absolute bottom-1/3 left-1/3 w-64 h-64 bg-[#3f2a61]/40 rounded-full filter blur-2xl opacity-70 animate-pulse"
+          style={{ animationDelay: "3s" }}
+        ></div>
+        <div
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#652db4]/60 rounded-full filter blur-2xl opacity-50 animate-pulse"
+          style={{ animationDelay: "0.5s" }}
         ></div>
       </div>
       <div className="relative z-10 p-6 text-gray-300">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold text-center mb-2 text-white">
-            Quantum Circuit AI Assistant
+            {currentPage.title}
           </h1>
           <p className="text-center text-gray-300 mb-8">
-            Build quantum circuits with AI assistance or manual control
+            {currentPage.description}
           </p>
+
+          {/* Glow effect behind title */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
+            <div className="w-[40rem] h-[40rem] bg-[#652db4]/50 rounded-full blur-3xl animate-pulse"></div>
+            <div
+              className="absolute w-[30rem] h-[30rem] bg-[#3f2a61]/40 rounded-full blur-2xl animate-pulse"
+              style={{ animationDelay: "1.5s" }}
+            ></div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <ControlPanel
               activeSection={activeSection}
@@ -400,12 +504,13 @@ export default function QuantumCircuitAssistantPage() {
               isProcessing={isProcessing}
               exampleQueries={exampleQueries}
               aiResponse={aiResponse}
+              buildGroverCircuit={buildGroverCircuit}
               numQubits={numQubits}
             />
             <div className="lg:col-span-3 flex flex-col gap-6">
               <CircuitBuilder
                 numQubits={numQubits}
-                setNumQubits={setNumQubits}
+                setNumQubits={setNumQubitsState}
                 clearCircuit={clearCircuit}
                 circuit={circuit}
                 setCircuit={setCircuit}

@@ -5,6 +5,7 @@ export interface QuantumGate {
   type: string;
   qubit?: number;
   control?: number;
+  control2?: number;
   target?: number;
   position: number;
   theta?: number; // For RX, RY, RZ gates
