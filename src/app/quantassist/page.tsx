@@ -48,7 +48,7 @@ export default function QuantumCircuitAssistantPage() {
   const [aiResponse, setAiResponse] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<
-    "manual" | "ai" | "algorithms"
+    "manual" | "algorithms"
   >("manual");
 
   const currentPage = pageConfig[activeSection];
@@ -537,20 +537,63 @@ export default function QuantumCircuitAssistantPage() {
             ></div>
           </div>
 
+          {/* AI Field - Top Row */}
+          <div className="bg-[#3f2a61]/30 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg p-6 mb-6">
+            <div className="flex items-center gap-4">
+              <label className="text-white font-semibold text-lg whitespace-nowrap">
+                🤖 Ask me anything quantum:
+              </label>
+              <div className="flex-1 flex gap-2">
+                <input
+                  type="text"
+                  value={userQuery}
+                  onChange={(e) => setUserQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleQuerySubmit()}
+                  placeholder="e.g., 'Create a quantum coin flip', 'Show me entanglement', 'Build Grover's algorithm'"
+                  className="flex-1 p-3 bg-black/20 border border-white/20 rounded-lg focus:ring-2 focus:ring-[#652db4] focus:border-transparent text-white placeholder-gray-400"
+                  disabled={isProcessing}
+                />
+                <button
+                  onClick={handleQuerySubmit}
+                  disabled={isProcessing || !userQuery.trim()}
+                  className="bg-[#652db4] text-white px-6 py-3 rounded-lg hover:bg-[#8145c2] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
+                >
+                  {isProcessing ? '🤔' : '✨ Generate'}
+                </button>
+              </div>
+            </div>
+            
+            {/* Example Suggestions */}
+            <div className="mt-4">
+              <p className="text-sm text-gray-300 mb-2">Try these examples:</p>
+              <div className="flex flex-wrap gap-2">
+                {exampleQueries.map((example, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setUserQuery(example)}
+                    className="text-xs bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full text-gray-300 transition-colors"
+                  >
+                    {example}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {aiResponse && (
+              <div className="mt-4 bg-black/20 border border-white/10 rounded-lg p-4">
+                <div className="text-gray-300 whitespace-pre-line">{aiResponse}</div>
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <ControlPanel
               activeSection={activeSection}
               setActiveSection={setActiveSection}
               gates={gates}
               handleDragStart={handleDragStart}
-              userQuery={userQuery}
-              setUserQuery={setUserQuery}
-              handleQuerySubmit={handleQuerySubmit}
-              isProcessing={isProcessing}
-              exampleQueries={exampleQueries}
-              aiResponse={aiResponse}
               buildGroverCircuit={buildGroverCircuit}
-              hasCircuit={circuit.length > 0}
+              isProcessing={isProcessing}
               numQubits={numQubits}
             />
             <div className="lg:col-span-3 flex flex-col gap-6">
