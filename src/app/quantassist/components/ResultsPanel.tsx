@@ -83,14 +83,32 @@ function Interpretation({
                 <>
                     {interpretationMode === 'simple' ? (
                         <div className="mt-2 p-3 bg-black/20 rounded-lg flex-1 border border-white/10">
-                            <h4 className="font-semibold text-white mb-2">Result Analysis:</h4>
+                            <h4 className="font-semibold text-white mb-2">What just happened? 🤔</h4>
                             <p className="text-sm text-gray-300">
-                                Each |state⟩ represents a possible measurement outcome.<br />
-                                The percentages show the probability of observing each state when the qubits are measured.<br />
+                                Think of your qubits like magical coins that can be both heads AND tails at the same time!<br /><br />
+                                
                                 {Object.keys(simulationResult).length > 1 ? (
-                                    <>This mix of outcomes indicates the circuit has created <b>quantum superposition</b>!</>
+                                    <>
+                                        <span className="text-[#652db4] font-semibold">✨ Magic happened!</span><br />
+                                        Your circuit created a <b>quantum superposition</b> - like having a coin that's somehow both heads AND tails until you look at it!<br /><br />
+                                        
+                                        <span className="text-yellow-400">🎯 Real-world analogy:</span><br />
+                                        It's like Schrödinger's cat - the cat is both alive AND dead until you open the box to check. Your qubits are in multiple states at once!<br /><br />
+                                        
+                                        <span className="text-green-400">📊 What you'll see:</span><br />
+                                        When you measure, you'll randomly get one of these results with the percentages shown above. It's like flipping a weighted coin!
+                                    </>
                                 ) : (
-                                    <>A single outcome suggests the circuit produced a <b>classical state</b>.</>
+                                    <>
+                                        <span className="text-blue-400 font-semibold">📌 Classic result!</span><br />
+                                        Your circuit gave you a <b>definite answer</b> - like a regular coin that's definitely heads or tails.<br /><br />
+                                        
+                                        <span className="text-yellow-400">🎯 Real-world analogy:</span><br />
+                                        It's like flipping a regular coin and getting a clear heads or tails. No quantum magic here - just a straightforward result!<br /><br />
+                                        
+                                        <span className="text-green-400">📊 What you'll see:</span><br />
+                                        You'll always get this same result when you measure. It's predictable, like a regular coin flip!
+                                    </>
                                 )}
                             </p>
                         </div>
@@ -219,7 +237,7 @@ function QiskitCodeBlock({ circuit, numQubits }: { circuit: QuantumGate[]; numQu
                     {/* Qiskit Code */}
                     <div className="bg-black/40 rounded-lg border border-white/10 p-4">
                         <div className="flex justify-between items-center mb-2">
-                            <h4 className="font-semibold text-white">Python Code</h4>
+                            <h4 className="font-semibold text-white">IBM Qisit Code (Python)</h4>
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => downloadCode(qiskitData.code, `${qiskitData.circuitName.toLowerCase().replace(/\s+/g, '_')}.py`)}
