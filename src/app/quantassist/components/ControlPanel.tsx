@@ -1,34 +1,36 @@
-import React from 'react';
-import GatePalette from './GatePalette';
-import AiAssistant from './AiAssistant';
-import { GateTemplate } from '../types';
+import React from "react";
+import GatePalette from "./GatePalette";
+import AiAssistant from "./AiAssistant";
+import { GateTemplate } from "../types";
 
 interface ControlPanelProps {
-    activeSection: 'manual' | 'ai';
-    setActiveSection: (section: 'manual' | 'ai') => void;
-    gates: GateTemplate[];
-    handleDragStart: (gate: GateTemplate) => void;
-    userQuery: string;
-    setUserQuery: (query: string) => void;
-    handleQuerySubmit: () => void;
-    isProcessing: boolean;
-    exampleQueries: string[];
-    aiResponse: string;
+  activeSection: "manual" | "ai";
+  setActiveSection: (section: "manual" | "ai") => void;
+  gates: GateTemplate[];
+  handleDragStart: (gate: GateTemplate) => void;
+  userQuery: string;
+  setUserQuery: (query: string) => void;
+  handleQuerySubmit: () => void;
+  isProcessing: boolean;
+  exampleQueries: string[];
+  aiResponse: string;
+  numQubits: number;
 }
 
 export default function ControlPanel(props: ControlPanelProps) {
-    const {
-        activeSection,
-        setActiveSection,
-        gates,
-        handleDragStart,
-        userQuery,
-        setUserQuery,
-        handleQuerySubmit,
-        isProcessing,
-        exampleQueries,
-        aiResponse
-    } = props;
+  const {
+    activeSection,
+    setActiveSection,
+    gates,
+    handleDragStart,
+    userQuery,
+    setUserQuery,
+    handleQuerySubmit,
+    isProcessing,
+    exampleQueries,
+    aiResponse,
+    numQubits,
+  } = props;
 
   return (
     <div className="lg:col-span-1 space-y-6">
@@ -36,21 +38,21 @@ export default function ControlPanel(props: ControlPanelProps) {
       <div className="bg-[#3f2a61]/30 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg p-2">
         <div className="flex">
           <button
-            onClick={() => setActiveSection('manual')}
+            onClick={() => setActiveSection("manual")}
             className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
-              activeSection === 'manual' 
-                ? 'bg-white/20 text-white' 
-                : 'text-gray-300 hover:bg-white/10'
+              activeSection === "manual"
+                ? "bg-white/20 text-white"
+                : "text-gray-300 hover:bg-white/10"
             }`}
           >
             🔧 Manual
           </button>
           <button
-            onClick={() => setActiveSection('ai')}
+            onClick={() => setActiveSection("ai")}
             className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
-              activeSection === 'ai' 
-                ? 'bg-white/20 text-white' 
-                : 'text-gray-300 hover:bg-white/10'
+              activeSection === "ai"
+                ? "bg-white/20 text-white"
+                : "text-gray-300 hover:bg-white/10"
             }`}
           >
             🤖 AI Assistant
@@ -58,20 +60,24 @@ export default function ControlPanel(props: ControlPanelProps) {
         </div>
       </div>
       {/* Manual Builder Section */}
-      {activeSection === 'manual' && (
-        <GatePalette gates={gates} handleDragStart={handleDragStart} />
+      {activeSection === "manual" && (
+        <GatePalette
+          gates={gates}
+          handleDragStart={handleDragStart}
+          numQubits={numQubits}
+        />
       )}
       {/* AI Assistant Section */}
-      {activeSection === 'ai' && (
+      {activeSection === "ai" && (
         <AiAssistant
-            userQuery={userQuery}
-            setUserQuery={setUserQuery}
-            handleQuerySubmit={handleQuerySubmit}
-            isProcessing={isProcessing}
-            exampleQueries={exampleQueries}
-            aiResponse={aiResponse}
+          userQuery={userQuery}
+          setUserQuery={setUserQuery}
+          handleQuerySubmit={handleQuerySubmit}
+          isProcessing={isProcessing}
+          exampleQueries={exampleQueries}
+          aiResponse={aiResponse}
         />
       )}
     </div>
   );
-} 
+}
