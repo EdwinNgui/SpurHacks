@@ -91,13 +91,6 @@ export default function QuantumCircuitAssistantPage() {
       description: "Controlled NOT",
     },
     {
-      type: "CCNOT",
-      name: "Toffoli",
-      symbol: "CC⊕",
-      color: "bg-purple-600",
-      description: "Controlled-Controlled-NOT",
-    },
-    {
       type: "RX",
       name: "RX",
       symbol: "RX",
@@ -111,13 +104,6 @@ export default function QuantumCircuitAssistantPage() {
       color: "bg-purple-500",
       description: "Y rotation",
     },
-    {
-      type: "MEASURE",
-      name: "Measure",
-      symbol: "📊",
-      color: "bg-purple-700",
-      description: "Measure qubit",
-    },
   ];
 
   // Quantum algorithm templates
@@ -128,27 +114,19 @@ export default function QuantumCircuitAssistantPage() {
       circuit: [
         { id: 1, type: "H", qubit: 0, position: 0 },
         { id: 2, type: "CNOT", control: 0, target: 1, position: 1 },
-        { id: 3, type: "MEASURE", qubit: 0, position: 2 },
-        { id: 4, type: "MEASURE", qubit: 1, position: 2 },
       ],
       qubits: 2,
     },
     superposition: {
       name: "Quantum Superposition",
       description: "Puts a qubit in equal superposition of |0⟩ and |1⟩",
-      circuit: [
-        { id: 1, type: "H", qubit: 0, position: 0 },
-        { id: 2, type: "MEASURE", qubit: 0, position: 1 },
-      ],
+      circuit: [{ id: 1, type: "H", qubit: 0, position: 0 }],
       qubits: 1,
     },
     quantum_coin_flip: {
       name: "Quantum Coin Flip",
       description: "True random coin flip using quantum superposition",
-      circuit: [
-        { id: 1, type: "H", qubit: 0, position: 0 },
-        { id: 2, type: "MEASURE", qubit: 0, position: 1 },
-      ],
+      circuit: [{ id: 1, type: "H", qubit: 0, position: 0 }],
       qubits: 1,
     },
     grover_2bit: {
@@ -161,8 +139,6 @@ export default function QuantumCircuitAssistantPage() {
         { id: 4, type: "Z", qubit: 1, position: 1 },
         { id: 5, type: "H", qubit: 0, position: 2 },
         { id: 6, type: "H", qubit: 1, position: 2 },
-        { id: 7, type: "MEASURE", qubit: 0, position: 3 },
-        { id: 8, type: "MEASURE", qubit: 1, position: 3 },
       ],
       qubits: 2,
     },
@@ -173,7 +149,6 @@ export default function QuantumCircuitAssistantPage() {
         { id: 1, type: "H", qubit: 0, position: 0 },
         { id: 2, type: "Z", qubit: 0, position: 1 },
         { id: 3, type: "H", qubit: 0, position: 2 },
-        { id: 4, type: "MEASURE", qubit: 0, position: 3 },
       ],
       qubits: 1,
     },
@@ -269,16 +244,13 @@ export default function QuantumCircuitAssistantPage() {
   ];
 
   const simulateCircuit = () => {
-    // 1. Filter out MEASURE gates and transform the circuit for the backend.
     const maxPosition = circuit.reduce(
       (max, gate) => Math.max(max, gate.position),
       0
     );
     const steps: Gate[][] = Array.from({ length: maxPosition + 1 }, () => []);
 
-    const frontendCircuit = circuit.filter((gate) => gate.type !== "MEASURE");
-
-    for (const gate of frontendCircuit) {
+    for (const gate of circuit) {
       const backendGate: Gate = {
         type: gate.type as Gate["type"],
         targets: [],
@@ -347,11 +319,13 @@ export default function QuantumCircuitAssistantPage() {
 
     // Prevent CNOT gates when there's only 1 qubit
     if (draggedGate.type === "CNOT" && numQubits === 1) {
+      console.log("CNOT gates require at least 2 qubits");
       return; // Don't allow CNOT gates with only 1 qubit
     }
 
     // Prevent CNOT gates from being placed on the last qubit
     if (draggedGate.type === "CNOT" && qubit === numQubits - 1) {
+      console.log("CNOT gates cannot be placed on the last qubit");
       return; // Don't allow CNOT gates on the last qubit
     }
 
@@ -363,6 +337,7 @@ export default function QuantumCircuitAssistantPage() {
     };
     if (draggedGate.type === "CNOT") {
       const control = qubit;
+      // Ensure target is not the same as control and not the last qubit
       const target = qubit === 0 ? 1 : 0;
       newGate.control = control;
       newGate.target = target;
@@ -440,10 +415,6 @@ export default function QuantumCircuitAssistantPage() {
       addGate({ type: "H", qubit: 1, position });
       position++;
     }
-
-    // 4. Measurement
-    addGate({ type: "MEASURE", qubit: 0, position });
-    addGate({ type: "MEASURE", qubit: 1, position });
 
     setCircuit(newCircuit);
     setActiveSection("manual"); // Switch to manual view to see the circuit

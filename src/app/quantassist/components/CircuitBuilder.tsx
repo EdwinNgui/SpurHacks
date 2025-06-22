@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { QuantumGate } from "../types";
 import GateConfigPopup from "./GateConfigPopup";
 
@@ -28,7 +28,30 @@ export default function CircuitBuilder({
   // Handle qubit count change - remove CNOT gates if numQubits becomes 1
   const handleQubitCountChange = (newCount: number) => {
     setNumQubits(newCount);
+
+    // If reducing to 1 qubit, remove all CNOT gates
+    if (newCount === 1) {
+      const filteredCircuit = circuit.filter((gate) => gate.type !== "CNOT");
+      if (filteredCircuit.length !== circuit.length) {
+        setCircuit(filteredCircuit);
+        console.log("Removed CNOT gates - they require at least 2 qubits");
+      }
+    }
   };
+
+  // Also handle automatic CNOT removal when qubit count changes
+  useEffect(() => {
+    if (numQubits === 1) {
+      const hasCNOTGates = circuit.some((gate) => gate.type === "CNOT");
+      if (hasCNOTGates) {
+        const filteredCircuit = circuit.filter((gate) => gate.type !== "CNOT");
+        setCircuit(filteredCircuit);
+        console.log(
+          "Automatically removed CNOT gates - they require at least 2 qubits"
+        );
+      }
+    }
+  }, [numQubits, circuit, setCircuit]);
 
   // Handle gate configuration
   const handleGateClick = (gate: QuantumGate) => {
@@ -132,7 +155,7 @@ export default function CircuitBuilder({
               : ""
           }`}
         >
-          {gate.type === "MEASURE" ? "📊" : gate.type}
+          {gate.type}
         </div>
       );
     }
