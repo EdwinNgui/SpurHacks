@@ -458,6 +458,39 @@ export default function QuantumCircuitAssistantPage() {
           });
         }
       };
+      
+      (window as any).testQiskit = async () => {
+        console.log('Testing Qiskit Code Generation...');
+        try {
+          const response = await fetch('/api/test-qiskit');
+          const result = await response.json();
+          console.log('Qiskit Test Result:', result);
+          return result;
+        } catch (error) {
+          console.error('Qiskit Test Error:', error);
+          return null;
+        }
+      };
+      
+      (window as any).generateQiskitCode = async (circuit: any, numQubits: number) => {
+        console.log('Generating Qiskit code for circuit:', circuit);
+        try {
+          const response = await fetch('/api/qiskit-code', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ circuit, numQubits })
+          });
+          
+          const result = await response.json();
+          console.log('Qiskit Code Generation Result:', result);
+          return result;
+        } catch (error) {
+          console.error('Qiskit Code Generation Error:', error);
+          return null;
+        }
+      };
     }
   }, []);
 
@@ -537,6 +570,7 @@ export default function QuantumCircuitAssistantPage() {
                 setInterpretationMode={setInterpretationMode}
                 finalStateVector={finalStateVector}
                 numQubits={numQubits}
+                circuit={circuit}
               />
             </div>
           </div>

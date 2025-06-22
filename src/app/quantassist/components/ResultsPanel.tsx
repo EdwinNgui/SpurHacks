@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Complex } from '@/lib/types';
-import { SimulationResult } from '../types';
+import { SimulationResult, QuantumGate } from '../types';
 
 interface ResultsPanelProps {
     simulationResult: SimulationResult | null;
@@ -8,6 +8,20 @@ interface ResultsPanelProps {
     setInterpretationMode: (mode: 'simple' | 'technical') => void;
     finalStateVector: Complex[] | null;
     numQubits: number;
+    circuit: QuantumGate[];
+}
+
+interface QiskitCodeData {
+    code: string;
+    explanation: string;
+    circuitName: string;
+    installationInstructions: string;
+    advancedCode?: string;
+    circuitStats: {
+        totalGates: number;
+        gateTypes: Record<string, number>;
+        maxPosition: number;
+    };
 }
 
 function MeasurementProbabilities({ simulationResult }: { simulationResult: SimulationResult | null }) {
@@ -102,15 +116,174 @@ function Interpretation({
     );
 }
 
-function CodeBlock() {
+function QiskitCodeBlock({ circuit, numQubits }: { circuit: QuantumGate[]; numQubits: number }) {
+    const [qiskitData, setQiskitData] = useState<QiskitCodeData | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const generateQiskitCode = async () => {
+        if (circuit.length === 0) {
+            setError('No circuit to generate code for');
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch('/api/qiskit-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    circuit,
+                    numQubits,
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                setQiskitData(result.data);
+            } else {
+                setError(result.error || 'Failed to generate Qiskit code');
+            }
+        } catch (err) {
+            setError('Failed to connect to Qiskit code generator');
+            console.error('Error generating Qiskit code:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text).then(() => {
+            // You could add a toast notification here
+            console.log('Code copied to clipboard');
+        }).catch(err => {
+            console.error('Failed to copy code:', err);
+        });
+    };
+
+    const downloadCode = (code: string, filename: string) => {
+        const blob = new Blob([code], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    useEffect(() => {
+        if (circuit.length > 0) {
+            generateQiskitCode();
+        } else {
+            setQiskitData(null);
+        }
+    }, [circuit, numQubits]);
+
     return (
         <div className="bg-[#3f2a61]/30 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg p-6">
-            <h3 className="text-xl font-semibold mb-4 text-white">Code Block</h3>
-            <div className="bg-black/40 rounded-lg border border-white/10 p-4 min-h-[200px]">
-                <div className="text-gray-400 italic text-sm">
-                    Code will appear here...
-                </div>
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-white">Qiskit Code</h3>
             </div>
+
+            {isLoading && (
+                <div className="bg-black/40 rounded-lg border border-white/10 p-4 min-h-[200px] flex items-center justify-center">
+                    <div className="text-gray-400">Generating Qiskit code...</div>
+                </div>
+            )}
+
+            {error && (
+                <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-4">
+                    <div className="text-red-400 text-sm">{error}</div>
+                </div>
+            )}
+
+            {qiskitData && (
+                <div className="space-y-4">
+                    {/* Circuit Info */}
+                    <div className="bg-black/20 rounded-lg p-3 border border-white/10">
+                        <h4 className="font-semibold text-white mb-2">{qiskitData.circuitName}</h4>
+                        <div className="text-sm text-gray-300">
+                            <p>Total gates: {qiskitData.circuitStats.totalGates}</p>
+                            <p>Circuit depth: {qiskitData.circuitStats.maxPosition}</p>
+                            <p>Qubits: {numQubits}</p>
+                        </div>
+                    </div>
+
+                    {/* Qiskit Code */}
+                    <div className="bg-black/40 rounded-lg border border-white/10 p-4">
+                        <div className="flex justify-between items-center mb-2">
+                            <h4 className="font-semibold text-white">Python Code</h4>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => downloadCode(qiskitData.code, `${qiskitData.circuitName.toLowerCase().replace(/\s+/g, '_')}.py`)}
+                                    className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors"
+                                >
+                                    Download
+                                </button>
+                                <button
+                                    onClick={() => copyToClipboard(qiskitData.code)}
+                                    className="px-3 py-1 bg-[#652db4] text-white rounded text-sm hover:bg-[#8145c2] transition-colors"
+                                >
+                                    Copy Code
+                                </button>
+                            </div>
+                        </div>
+                        <div className="bg-black/60 rounded border border-white/20 p-3 max-h-96 overflow-y-auto">
+                            <pre className="text-xs text-gray-300 whitespace-pre-wrap font-mono">
+                                {qiskitData.code.split('\n').map((line, index) => {
+                                    // Simple syntax highlighting
+                                    let highlightedLine = line;
+                                    
+                                    // Highlight comments
+                                    if (line.trim().startsWith('#')) {
+                                        highlightedLine = `<span class="text-green-400">${line}</span>`;
+                                    }
+                                    // Highlight strings
+                                    else if (line.includes("'") || line.includes('"')) {
+                                        highlightedLine = line.replace(/(['"])(.*?)\1/g, '<span class="text-yellow-400">$1$2$1</span>');
+                                    }
+                                    // Highlight keywords
+                                    else {
+                                        const keywords = ['from', 'import', 'def', 'class', 'if', 'else', 'for', 'while', 'return', 'print', 'qc', 'Aer', 'execute', 'plot_histogram'];
+                                        keywords.forEach(keyword => {
+                                            const regex = new RegExp(`\\b${keyword}\\b`, 'g');
+                                            highlightedLine = highlightedLine.replace(regex, `<span class="text-blue-400">${keyword}</span>`);
+                                        });
+                                    }
+                                    
+                                    return (
+                                        <div key={index} 
+                                             className="hover:bg-white/5 px-1 rounded"
+                                             dangerouslySetInnerHTML={{ __html: highlightedLine }}
+                                        />
+                                    );
+                                })}
+                            </pre>
+                        </div>
+                    </div>
+
+                    {/* Explanation */}
+                    <div className="bg-black/20 rounded-lg p-3 border border-white/10">
+                        <h4 className="font-semibold text-white mb-2">Code Explanation</h4>
+                        <p className="text-sm text-gray-300 whitespace-pre-wrap">{qiskitData.explanation}</p>
+                    </div>
+                </div>
+            )}
+
+            {!qiskitData && !isLoading && circuit.length === 0 && (
+                <div className="bg-black/40 rounded-lg border border-white/10 p-4 min-h-[200px] flex items-center justify-center">
+                    <div className="text-gray-400 italic text-sm">
+                        Build a circuit to generate Qiskit code...
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -122,7 +295,7 @@ export default function ResultsPanel(props: ResultsPanelProps) {
         <MeasurementProbabilities simulationResult={props.simulationResult} />
         <Interpretation {...props} />
       </div>
-      <CodeBlock />
+      <QiskitCodeBlock circuit={props.circuit} numQubits={props.numQubits} />
     </div>
   );
 } 
