@@ -521,7 +521,7 @@ export default function QuantumCircuitAssistantPage() {
       </div>
       <div className="relative z-10 p-6 text-gray-300">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold text-center mb-2 text-white">
+          <h1 className="text-6xl font-bold text-center mb-4 mt-12 text-white">
             {currentPage.title}
           </h1>
           <p className="text-center text-gray-300 mb-8">
