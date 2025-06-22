@@ -27,9 +27,8 @@ export default function Home() {
         
         {/* Slogan */}
         <p className="text-2xl md:text-3xl lg:text-4xl text-gray-300 font-light tracking-wider">
-          Quantum Computing & AI Innovation
+          Cursor for Quantum Computing
         </p>
-        
         {/* Apple Liquid Glass Style Button */}
         <div className="pt-12">
           <Link
