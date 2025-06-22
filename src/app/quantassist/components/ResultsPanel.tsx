@@ -102,12 +102,27 @@ function Interpretation({
     );
 }
 
+function CodeBlock() {
+    return (
+        <div className="bg-[#3f2a61]/30 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg p-6">
+            <h3 className="text-xl font-semibold mb-4 text-white">Code Block</h3>
+            <div className="bg-black/40 rounded-lg border border-white/10 p-4 min-h-[200px]">
+                <div className="text-gray-400 italic text-sm">
+                    Code will appear here...
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export default function ResultsPanel(props: ResultsPanelProps) {
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-      <MeasurementProbabilities simulationResult={props.simulationResult} />
-      <Interpretation {...props} />
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <MeasurementProbabilities simulationResult={props.simulationResult} />
+        <Interpretation {...props} />
+      </div>
+      <CodeBlock />
     </div>
   );
 } 
