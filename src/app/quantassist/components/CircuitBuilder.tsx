@@ -77,33 +77,6 @@ export default function CircuitBuilder({
     setConfigGate(null);
   };
 
-  // Get CNOT connections for visualization
-  const getCNOTConnections = () => {
-    const connections: {
-      control: number;
-      target: number;
-      position: number;
-      id: number;
-    }[] = [];
-    circuit.forEach((gate) => {
-      if (
-        gate.type === "CNOT" &&
-        gate.control !== undefined &&
-        gate.target !== undefined
-      ) {
-        connections.push({
-          control: gate.control,
-          target: gate.target,
-          position: gate.position,
-          id: gate.id,
-        });
-      }
-    });
-    return connections;
-  };
-
-  const cnotConnections = getCNOTConnections();
-
   // Render a single gate
   const renderGate = (gate: QuantumGate, qubit: number, position: number) => {
     if (gate.type === "CNOT") {
@@ -116,13 +89,11 @@ export default function CircuitBuilder({
         <div
           key={`${gate.id}-${qubit}`}
           onClick={() => handleGateClick(gate)}
-          className={`rounded-full flex items-center justify-center text-white font-bold text-sm cursor-pointer hover:scale-110 transition-transform ${
-            isControl
-              ? "bg-[#652db4] w-8 h-8 mx-auto my-auto"
-              : "bg-[#3f2a61] w-12 h-12"
+          className={`rounded-full flex items-center justify-center text-white font-bold text-sm cursor-pointer hover:scale-110 transition-transform w-12 h-12 ${
+            isControl ? "bg-[#652db4]" : "bg-[#3f2a61]"
           }`}
         >
-          {isControl ? "" : "⊕"}
+          {isControl ? "●" : "⊕"}
         </div>
       );
     } else {
@@ -198,25 +169,6 @@ export default function CircuitBuilder({
               </span>
               <div className="flex-1 relative" style={{ minWidth: "640px" }}>
                 <div className="h-0.5 bg-white/30 w-full absolute top-1/2"></div>
-
-                {/* CNOT connection lines */}
-                {cnotConnections.map((connection) => (
-                  <div
-                    key={`connection-${connection.id}`}
-                    className="absolute w-0.5 bg-[#652db4]"
-                    style={{
-                      left: `${connection.position * 80 + 24}px`,
-                      top: `${
-                        Math.min(connection.control, connection.target) * 80 +
-                        24
-                      }px`,
-                      height: `${
-                        Math.abs(connection.target - connection.control) * 80
-                      }px`,
-                      zIndex: 1,
-                    }}
-                  />
-                ))}
 
                 {Array.from({ length: 8 }, (_, pos) => (
                   <div
