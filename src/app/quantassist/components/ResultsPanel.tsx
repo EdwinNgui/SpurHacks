@@ -237,7 +237,7 @@ function QiskitCodeBlock({ circuit, numQubits }: { circuit: QuantumGate[]; numQu
                     {/* Qiskit Code */}
                     <div className="bg-black/40 rounded-lg border border-white/10 p-4">
                         <div className="flex justify-between items-center mb-2">
-                            <h4 className="font-semibold text-white">IBM Qisit Code (Python)</h4>
+                            <h4 className="font-semibold text-white">IBM Qiskit Code (Python)</h4>
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => downloadCode(qiskitData.code, `${qiskitData.circuitName.toLowerCase().replace(/\s+/g, '_')}.py`)}
