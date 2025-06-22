@@ -47,9 +47,9 @@ export default function QuantumCircuitAssistantPage() {
   const [userQuery, setUserQuery] = useState<string>("");
   const [aiResponse, setAiResponse] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [activeSection, setActiveSection] = useState<
-    "manual" | "algorithms"
-  >("manual");
+  const [activeSection, setActiveSection] = useState<"manual" | "algorithms">(
+    "manual"
+  );
 
   const currentPage = pageConfig[activeSection];
 
@@ -223,7 +223,7 @@ export default function QuantumCircuitAssistantPage() {
         }))
       );
       setAiResponse(
-        `${explanation}\n\n**Algorithm:** ${selectedAlgorithm.name}\n**Description:** ${selectedAlgorithm.description}\n\nI've built the circuit for you. Click "Run Quantum Circuit" to see the results!`
+        `${explanation}\n\nAlgorithm: ${selectedAlgorithm.name}\nDescription: ${selectedAlgorithm.description}\n\nI've built the circuit for you. Click "Run Quantum Circuit" to see the results!`
       );
     }
     setIsProcessing(false);
@@ -422,72 +422,77 @@ export default function QuantumCircuitAssistantPage() {
 
   // Development helper - remove in production
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       (window as any).testCircuitSimulation = () => {
-        console.log('Testing circuit simulation...');
+        console.log("Testing circuit simulation...");
         try {
           // Test with a simple valid circuit
           const testCircuit: Circuit = {
             gates: [
+              [{ type: "H" as const, targets: [0] }],
               [
-                { type: 'H' as const, targets: [0] }
+                { type: "H" as const, targets: [0] }, // Using H instead of MEASURE since MEASURE isn't in the Gate type
               ],
-              [
-                { type: 'H' as const, targets: [0] } // Using H instead of MEASURE since MEASURE isn't in the Gate type
-              ]
-            ]
+            ],
           };
-          
+
           const result = runCircuit(testCircuit, 1);
-          console.log('Simulation test result:', result);
+          console.log("Simulation test result:", result);
           return result;
         } catch (error) {
-          console.error('Simulation test error:', error);
+          console.error("Simulation test error:", error);
           return null;
         }
       };
-      
+
       (window as any).debugCircuit = (circuit: any) => {
-        console.log('Debugging circuit:', circuit);
+        console.log("Debugging circuit:", circuit);
         if (circuit && Array.isArray(circuit)) {
           circuit.forEach((gate: any, index: number) => {
             console.log(`Gate ${index}:`, gate);
-            if (!gate || typeof gate !== 'object' || Object.keys(gate).length === 0) {
+            if (
+              !gate ||
+              typeof gate !== "object" ||
+              Object.keys(gate).length === 0
+            ) {
               console.warn(`Gate ${index} is empty or invalid:`, gate);
             }
           });
         }
       };
-      
+
       (window as any).testQiskit = async () => {
-        console.log('Testing Qiskit Code Generation...');
+        console.log("Testing Qiskit Code Generation...");
         try {
-          const response = await fetch('/api/test-qiskit');
+          const response = await fetch("/api/test-qiskit");
           const result = await response.json();
-          console.log('Qiskit Test Result:', result);
+          console.log("Qiskit Test Result:", result);
           return result;
         } catch (error) {
-          console.error('Qiskit Test Error:', error);
+          console.error("Qiskit Test Error:", error);
           return null;
         }
       };
-      
-      (window as any).generateQiskitCode = async (circuit: any, numQubits: number) => {
-        console.log('Generating Qiskit code for circuit:', circuit);
+
+      (window as any).generateQiskitCode = async (
+        circuit: any,
+        numQubits: number
+      ) => {
+        console.log("Generating Qiskit code for circuit:", circuit);
         try {
-          const response = await fetch('/api/qiskit-code', {
-            method: 'POST',
+          const response = await fetch("/api/qiskit-code", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({ circuit, numQubits })
+            body: JSON.stringify({ circuit, numQubits }),
           });
-          
+
           const result = await response.json();
-          console.log('Qiskit Code Generation Result:', result);
+          console.log("Qiskit Code Generation Result:", result);
           return result;
         } catch (error) {
-          console.error('Qiskit Code Generation Error:', error);
+          console.error("Qiskit Code Generation Error:", error);
           return null;
         }
       };
@@ -572,7 +577,7 @@ export default function QuantumCircuitAssistantPage() {
                   type="text"
                   value={userQuery}
                   onChange={(e) => setUserQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleQuerySubmit()}
+                  onKeyPress={(e) => e.key === "Enter" && handleQuerySubmit()}
                   placeholder="e.g., 'Create a quantum coin flip', 'Show me entanglement', 'Build Grover's algorithm'"
                   className="flex-1 p-3 bg-black/20 border border-white/20 rounded-lg focus:ring-2 focus:ring-[#652db4] focus:border-transparent text-white placeholder-gray-400"
                   disabled={isProcessing}
@@ -582,11 +587,11 @@ export default function QuantumCircuitAssistantPage() {
                   disabled={isProcessing || !userQuery.trim()}
                   className="bg-[#652db4] text-white px-6 py-3 rounded-lg hover:bg-[#8145c2] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
                 >
-                  {isProcessing ? '🤔' : '✨ Generate'}
+                  {isProcessing ? "🤔" : "✨ Generate"}
                 </button>
               </div>
             </div>
-            
+
             {/* Example Suggestions */}
             <div className="mt-4">
               <p className="text-sm text-gray-300 mb-2">Try these examples:</p>
@@ -602,10 +607,12 @@ export default function QuantumCircuitAssistantPage() {
                 ))}
               </div>
             </div>
-            
+
             {aiResponse && (
               <div className="mt-4 bg-black/20 border border-white/10 rounded-lg p-4">
-                <div className="text-gray-300 whitespace-pre-line">{aiResponse}</div>
+                <div className="text-gray-300 whitespace-pre-line">
+                  {aiResponse}
+                </div>
               </div>
             )}
           </div>
