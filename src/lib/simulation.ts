@@ -34,75 +34,133 @@ export function initialState(numQubits: number): Complex[] {
 
 export function runCircuit(circuit: Circuit, numQubits: number): Complex[] {
   let state = initialState(numQubits);
+  
+  // Validate circuit structure
+  if (!circuit.gates || !Array.isArray(circuit.gates)) {
+    console.warn('Invalid circuit structure:', circuit);
+    return state;
+  }
+  
   for (const step of circuit.gates) {
+    if (!Array.isArray(step)) {
+      console.warn('Invalid step in circuit:', step);
+      continue;
+    }
+    
     for (const gate of step) {
-      switch (gate.type) {
-        case "H":
-          state = applySingleQubitGate(
-            state,
-            hGate,
-            gate.targets[0],
-            numQubits
-          );
-          break;
-        case "X":
-          state = applySingleQubitGate(
-            state,
-            xGate,
-            gate.targets[0],
-            numQubits
-          );
-          break;
-        case "Y":
-          state = applySingleQubitGate(
-            state,
-            yGate,
-            gate.targets[0],
-            numQubits
-          );
-          break;
-        case "Z":
-          state = applySingleQubitGate(
-            state,
-            zGate,
-            gate.targets[0],
-            numQubits
-          );
-          break;
-        case "RX":
-          state = applySingleQubitGate(
-            state,
-            rxGate(gate.params!),
-            gate.targets[0],
-            numQubits
-          );
-          break;
-        case "RY":
-          state = applySingleQubitGate(
-            state,
-            ryGate(gate.params!),
-            gate.targets[0],
-            numQubits
-          );
-          break;
-        case "RZ":
-          state = applySingleQubitGate(
-            state,
-            rzGate(gate.params!),
-            gate.targets[0],
-            numQubits
-          );
-          break;
-        case "CNOT":
-          state = applyTwoQubitGate(
-            state,
-            cnotGate,
-            gate.targets[0],
-            gate.targets[1],
-            numQubits
-          );
-          break;
-        case "CCNOT":
+      // Validate gate structure - be more strict about empty objects
+      if (!gate || typeof gate !== 'object' || Object.keys(gate).length === 0) {
+        console.warn('Empty or null gate object found:', gate);
+        continue;
+      }
+      
+      if (!gate.type || !Array.isArray(gate.targets)) {
+        console.warn('Invalid gate structure - missing type or targets:', gate);
+        continue;
+      }
+      
+      // Validate targets array
+      if (gate.targets.length === 0) {
+        console.warn('Gate has no targets:', gate);
+        continue;
+      }
+      
+      // Validate target indices
+      for (const target of gate.targets) {
+        if (typeof target !== 'number' || target < 0 || target >= numQubits) {
+          console.warn('Invalid target index:', target, 'for qubits:', numQubits, 'in gate:', gate);
+          continue;
+        }
+      }
+      
+      try {
+        switch (gate.type) {
+          case "H":
+            state = applySingleQubitGate(
+              state,
+              hGate,
+              gate.targets[0],
+              numQubits
+            );
+            break;
+          case "X":
+            state = applySingleQubitGate(
+              state,
+              xGate,
+              gate.targets[0],
+              numQubits
+            );
+            break;
+          case "Y":
+            state = applySingleQubitGate(
+              state,
+              yGate,
+              gate.targets[0],
+              numQubits
+            );
+            break;
+          case "Z":
+            state = applySingleQubitGate(
+              state,
+              zGate,
+              gate.targets[0],
+              numQubits
+            );
+            break;
+          case "RX":
+            if (gate.params === undefined) {
+              console.warn('RX gate missing params, using default:', gate);
+              gate.params = Math.PI / 2;
+            }
+            state = applySingleQubitGate(
+              state,
+              rxGate(gate.params),
+              gate.targets[0],
+              numQubits
+            );
+            break;
+          case "RY":
+            if (gate.params === undefined) {
+              console.warn('RY gate missing params, using default:', gate);
+              gate.params = Math.PI / 2;
+            }
+            state = applySingleQubitGate(
+              state,
+              ryGate(gate.params),
+              gate.targets[0],
+              numQubits
+            );
+            break;
+          case "RZ":
+            if (gate.params === undefined) {
+              console.warn('RZ gate missing params, using default:', gate);
+              gate.params = Math.PI / 2;
+            }
+            state = applySingleQubitGate(
+              state,
+              rzGate(gate.params),
+              gate.targets[0],
+              numQubits
+            );
+            break;
+          case "CNOT":
+            if (gate.targets.length < 2) {
+              console.warn('CNOT gate needs 2 targets:', gate);
+              continue;
+            }
+            state = applyTwoQubitGate(
+              state,
+              cnotGate,
+              gate.targets[0],
+              gate.targets[1],
+              numQubits
+            );
+            break;
+          case "CCNOT":
+            if (gate.targets.length < 3) {
+              console.warn('CCNOT gate needs 3 targets:', gate);
+              continue;
+            }
             state = applyCCNOT(
                 state,
                 gate.targets[0], // control1
@@ -111,6 +169,13 @@ export function runCircuit(circuit: Circuit, numQubits: number): Complex[] {
                 numQubits
             );
             break;
+          default:
+            console.warn('Unknown gate type:', gate.type, 'in gate:', gate);
+            break;
+        }
+      } catch (error) {
+        console.error('Error applying gate:', gate, 'Error:', error);
+        // Continue with other gates instead of crashing
       }
     }
   }

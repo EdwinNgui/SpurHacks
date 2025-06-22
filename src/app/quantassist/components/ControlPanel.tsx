@@ -16,6 +16,8 @@ interface ControlPanelProps {
     exampleQueries: string[];
     aiResponse: string;
     buildGroverCircuit: (password: string, iterations: number) => void;
+    onAnalyzeCircuit?: () => void;
+    hasCircuit: boolean;
 }
 
 export default function ControlPanel(props: ControlPanelProps) {
@@ -30,7 +32,9 @@ export default function ControlPanel(props: ControlPanelProps) {
         isProcessing,
         exampleQueries,
         aiResponse,
-        buildGroverCircuit
+        buildGroverCircuit,
+        onAnalyzeCircuit,
+        hasCircuit
     } = props;
 
   return (
@@ -86,6 +90,8 @@ export default function ControlPanel(props: ControlPanelProps) {
             isProcessing={isProcessing}
             exampleQueries={exampleQueries}
             aiResponse={aiResponse}
+            onAnalyzeCircuit={onAnalyzeCircuit}
+            hasCircuit={hasCircuit}
         />
       )}
 
